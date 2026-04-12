@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ramkumar - Future MLA</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Poppins:wght@300;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  font-family:'Poppins',sans-serif;
+  background:#050505;
+  color:white;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* LOADER */
+#loader{
+  position:fixed;
+  width:100%;height:100%;
+  background:#000;
+  display:flex;
+  justify-content:center;align-items:center;
+  z-index:999;
+  flex-direction:column;
+  gap:20px;
+}
+.loader-ring{
+  width:60px;height:60px;
+  border:3px solid rgba(255,183,0,0.15);
+  border-top:3px solid #ffb700;
+  border-radius:50%;
+  animation:spin 0.7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+#typing{
+  color:#ffb700;
+  font-size:15px;
+  letter-spacing:3px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+canvas{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* BACKGROUND */
+#main{
+  display:none;
+  min-height:100vh;
+  background:#050505;
+  position:relative;z-index:1;
+}
+
+#main::before{
+  content:'';
+  position:fixed;
+  top:0;left:0;width:100%;height:100%;
+  background:
+    radial-gradient(ellipse at 10% 50%, rgba(255,183,0,0.08) 0%, transparent 55%),
+    radial-gradient(ellipse at 90% 20%, rgba(0,81,255,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 90%, rgba(255,68,0,0.06) 0%, transparent 55%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* HEADER */
+.header{
+  text-align:center;
+  font-size:clamp(32px,6vw,64px);
+  font-weight:900;
+  letter-spacing:2px;
+  font-family:'Cinzel', serif;
+  background:linear-gradient(90deg,#ffb700,#fff,#ffb700);
+  background-size:200% auto;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:shimmer 3s linear infinite;
+  padding:40px 20px 10px;
+  position:relative;z-index:1;
+}
+@keyframes shimmer{0%{background-position:0% center;}100%{background-position:200% center;}}
+
+.tagline{
+  text-align:center;
+  font-size:clamp(12px,1.5vw,16px);
+  color:#ffb700;
+  letter-spacing:5px;
+  text-transform:uppercase;
+  opacity:0.9;
+  margin-top:-5px;
+  position:relative;z-index:1;
+}
+
+/* MAIN ROW */
+.main-row{
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:40px;
+  padding:40px 20px;
+  min-height:calc(100vh - 180px);
+  position:relative;z-index:1;
+}
+
+/* FLOAT ANIMATIONS */
+@keyframes float1{0%,100%{transform:translateY(0px);}50%{transform:translateY(-15px);}}
+
+/* IMAGE CARD */
+.flip-card{
+  width:clamp(220px,25vw,300px);
+  height:clamp(350px,40vw,480px);
+  perspective:1000px;
+  animation:float1 4s ease-in-out infinite;
+  filter:drop-shadow(0 0 20px rgba(255,183,0,0.3));
+}
+
+.flip-inner{width:100%;height:100%;transition:transform 0.8s;transform-style:preserve-3d;position:relative;}
+.flip-card:hover .flip-inner{transform:rotateY(180deg);}
+.flip-front,.flip-back{position:absolute;width:100%;height:100%;border-radius:15px;backface-visibility:hidden;}
+.flip-front{
+  overflow:hidden;
+  border:2px solid rgba(255,183,0,0.4);
+}
+.flip-front img{width:100%;height:100%;object-fit:cover; filter: contrast(1.1);}
+.flip-back{
+  background:linear-gradient(135deg,#1a1a1a,#000);
+  border:2px solid #ffb700;
+  display:block;align-items:center;justify-content:center;
+  text-align:center;padding:30px;
+  transform:rotateY(180deg);
+  color:#ffb700;
+  font-family:'Cinzel', serif;
+}
+
+/* INFO CARD */
+.flip-card-card{
+  width:clamp(280px,30vw,380px);
+  height:clamp(300px,35vw,400px);
+  perspective:1000px;
+}
+
+.flip-inner-card{width:100%;height:100%;transition:transform 0.8s;transform-style:preserve-3d;position:relative;}
+.flip-card-card:hover .flip-inner-card{transform:rotateY(180deg);}
+.flip-front-card,.flip-back-card{position:absolute;width:100%;height:100%;border-radius:20px;backface-visibility:hidden;}
+.flip-front-card{
+  background:rgba(255,255,255,0.03);
+  backdrop-filter:blur(15px);
+  border:1px solid rgba(255,183,0,0.2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:30px;
+}
+.flip-back-card{
+  background:linear-gradient(135deg,#001f3f,#000);
+  border:1px solid #00d4ff;
+  transform:rotateY(180deg);
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;padding:30px;
+  color:#fff;line-height:1.8;
+}
+
+.role{
+  color:#ffb700;
+  font-size:clamp(18px,2vw,24px);font-weight:700;
+  font-family:'Cinzel', serif;
+  margin-bottom:15px;
+}
+
+.quote{font-size:14px; color:#ddd; font-style:italic;}
+
+/* BUTTON */
+.msg-btn{
+  padding:15px 35px;border-radius:50px;
+  border:2px solid #ffb700;
+  background:transparent;
+  color:#ffb700;font-weight:700;cursor:pointer;
+  letter-spacing:2px;
+  transition:0.4s;
+  box-shadow:0 0 15px rgba(255,183,0,0.2);
+}
+.msg-btn:hover{
+  background:#ffb700;
+  color:#000;
+  box-shadow:0 0 30px rgba(255,183,0,0.6);
+}
+
+/* POPUP */
+.popup{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.95);
+  display:none;justify-content:center;align-items:center;
+  z-index:1000;padding:20px;
+}
+.popup-content{
+  background:#111;
+  border:1px solid #ffb700;
+  padding:40px;border-radius:20px;
+  width:100%;max-width:600px;
+  max-height:80vh;overflow-y:auto;
+}
+.popup-title{color:#ffb700; font-family:'Cinzel', serif; font-size:24px; margin-bottom:20px;}
+.close{float:right; cursor:pointer; font-size:28px; color:#ffb700;}
+
+@media(max-width:768px){
+  .main-row{flex-direction:column; min-height:auto;}
+}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-ring"></div>
+  <span id="typing"></span>
+</div>
+
+<div id="main">
+  <canvas id="canvas"></canvas>
+  <div class="header" id="name"></div>
+  <div class="tagline">Vision · Integrity · Progress</div>
+
+  <div class="main-row">
+    <div class="flip-card">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <img src="images/Ramkumar.png" alt="Ramkumar">
+        </div>
+        <div class="flip-back">
+          <h3>THE VISIONARY</h3><br>
+          <p>Leading with purpose, serving with passion.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flip-card-card">
+      <div class="flip-inner-card">
+        <div class="flip-front-card">
+          <p class="role">MLA</p>
+          <p class="quote">"True leadership is not about power, but about the empowerment of every citizen in our constituency."</p>
+          <p style="margin-top:20px; color:#ffb700; opacity:0.6;">Constituency 2026</p>
+        </div>
+        <div class="flip-back-card">
+          <p>A commitment to infrastructure, education, and transparent governance. Ramkumar represents a new era of leadership where every voice counts and every action builds a better tomorrow.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="width:100%; text-align:center;">
+       <button class="msg-btn" onclick="showMsg(event)">View Manifesto_</button>
+    </div>
+  </div>
+</div>
+
+<div id="popup" class="popup">
+  <div class="popup-content">
+    <span class="close" onclick="closePopup()">&times;</span>
+    <p class="popup-title">✦ WISHES FOR THE JOURNEY ✦</p>
+    <div style="color:#eee; line-height:1.8; font-family:'Poppins', sans-serif;">
+      
+      <p style="margin-bottom: 15px; border-left: 3px solid #ffb700; padding-left: 15px;">
+        "May your vision for the people turn into a reality that changes lives. You have the heart of a leader; now go win the hearts of the masses!"
+      </p>
+
+      <p style="margin-bottom: 15px; border-left: 3px solid #00d4ff; padding-left: 15px;">
+        "The road to 2026 is paved with hard work, but your dedication is unmatched. Keep soaring, Ramkumar!"
+      </p>
+
+      <p style="margin-bottom: 15px; border-left: 3px solid #ff4400; padding-left: 15px;">
+        "True leadership is a marathon, not a sprint. May you have the strength to persevere and the wisdom to lead with integrity. Success is yours!"
+      </p>
+
+      <p style="margin-top: 25px; text-align: center; color: #ffb700; font-weight: 700; letter-spacing: 1px;">
+        ✨ MLA LOADING ... ✨
+      </p>
+
+    </div>
+  </div>
+</div>
+
+<script>
+let text=["Identifying Leader...","Loading Vision 2026...","Welcome, Ramkumar!"];
+let i=0,j=0;
+function typeLoader(){
+  let el=document.getElementById("typing");
+  if(j<text[i].length){el.innerHTML+=text[i][j];j++;setTimeout(typeLoader,50);}
+  else{setTimeout(()=>{el.innerHTML="";j=0;i++;if(i<text.length)typeLoader();else startMain();},800);}
+}
+typeLoader();
+
+function startMain(){
+  document.getElementById("loader").style.display="none";
+  document.getElementById("main").style.display="block";
+  typeName();
+  resizeCanvas();
+}
+
+let nameText="RAMKUMAR",k=0;
+function typeName(){
+  if(k<nameText.length){document.getElementById("name").innerHTML+=nameText[k];k++;setTimeout(typeName,100);}
+}
+
+let canvas=document.getElementById("canvas");
+let ctx=canvas.getContext("2d");
+function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+window.addEventListener("resize",resizeCanvas);
+
+let particles = [];
+function initParticles() {
+    for(let i=0; i<80; i++) {
+        particles.push({
+            x: Math.random()*canvas.width,
+            y: Math.random()*canvas.height,
+            size: Math.random()*2,
+            speed: Math.random()*0.5 + 0.2
+        });
+    }
+}
+initParticles();
+
+function draw() {
+    ctx.fillStyle = "rgba(5, 5, 5, 0.2)";
+    ctx.fillRect(0,0,canvas.width, canvas.height);
+    ctx.fillStyle = "#ffb700";
+    particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+        ctx.fill();
+        p.y -= p.speed;
+        if(p.y < 0) p.y = canvas.height;
+    });
+    requestAnimationFrame(draw);
+}
+draw();
+
+function showMsg(e){document.getElementById("popup").style.display="flex";}
+function closePopup(){document.getElementById("popup").style.display="none";}
+</script>
+</body>
+</html>

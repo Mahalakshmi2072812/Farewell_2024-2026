@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kavya Dharshini</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Rajdhani',sans-serif;background:#080400;color:white;min-height:100vh;overflow-x:hidden;}
+
+#loader{position:fixed;width:100%;height:100%;background:#080400;display:flex;justify-content:center;align-items:center;z-index:999;flex-direction:column;gap:20px;}
+.loader-ring{width:64px;height:64px;border:3px solid rgba(251,113,65,0.15);border-top:3px solid #fb7141;border-radius:50%;animation:spin 0.75s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#typing{color:#fb7141;font-size:15px;letter-spacing:3px;font-family:'Share Tech Mono',monospace;}
+
+canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+
+#main{display:none;min-height:100vh;background:#080400;position:relative;z-index:1;}
+#main::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+  background:
+    radial-gradient(ellipse at 12% 55%,rgba(251,113,65,0.12) 0%,transparent 50%),
+    radial-gradient(ellipse at 88% 18%,rgba(249,115,22,0.09) 0%,transparent 50%),
+    radial-gradient(ellipse at 50% 92%,rgba(234,88,12,0.08) 0%,transparent 50%);
+  pointer-events:none;z-index:0;animation:meshShift 8s ease-in-out infinite alternate;}
+@keyframes meshShift{0%{opacity:0.5;}100%{opacity:1;}}
+
+/* ASHOKA CHAKRA WATERMARK */
+.chakra-bg{position:fixed;right:-80px;top:50%;transform:translateY(-50%);width:500px;height:500px;opacity:0.025;z-index:0;pointer-events:none;animation:rotateSlow 40s linear infinite;}
+@keyframes rotateSlow{to{transform:translateY(-50%) rotate(360deg);}}
+
+.header{text-align:center;font-size:clamp(24px,5.5vw,58px);font-weight:700;letter-spacing:6px;
+  font-family:'Share Tech Mono',monospace;
+  background:linear-gradient(90deg,#fb7141,#fed7aa,#ffffff,#fed7aa,#fb7141);
+  background-size:300% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:fadeDown 1s ease,shimmer 4s linear infinite;
+  padding:28px 20px 4px;position:relative;z-index:1;text-transform:uppercase;}
+@keyframes shimmer{0%{background-position:0% center;}100%{background-position:300% center;}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-30px);}to{opacity:1;transform:translateY(0);}}
+
+.tagline{text-align:center;font-size:clamp(10px,1.3vw,13px);color:#fb7141;letter-spacing:5px;text-transform:uppercase;
+  font-family:'Share Tech Mono',monospace;opacity:0.7;margin-top:-2px;position:relative;z-index:1;}
+
+/* GOVT SEAL BAR */
+.seal-bar{display:flex;justify-content:center;align-items:center;gap:16px;padding:10px 20px 0;position:relative;z-index:1;}
+.seal-line{flex:1;max-width:120px;height:1px;background:linear-gradient(90deg,transparent,rgba(251,113,65,0.5));}
+.seal-line.right{background:linear-gradient(90deg,rgba(251,113,65,0.5),transparent);}
+.seal-text{font-family:'Share Tech Mono',monospace;font-size:10px;color:#fb7141;letter-spacing:3px;opacity:0.7;}
+
+.main-row{display:flex;flex-direction:row;align-items:center;justify-content:center;flex-wrap:wrap;gap:28px;padding:16px 20px 40px;min-height:calc(100vh - 130px);position:relative;z-index:1;}
+
+@keyframes float1{0%,100%{transform:translateY(0);}50%{transform:translateY(-13px);}}
+@keyframes float2{0%,100%{transform:translateY(0);}50%{transform:translateY(-11px);}}
+@keyframes glowOrange{0%,100%{filter:drop-shadow(0 0 16px rgba(251,113,65,0.6)) drop-shadow(0 0 40px rgba(251,113,65,0.2));}50%{filter:drop-shadow(0 0 30px rgba(254,215,170,0.9)) drop-shadow(0 0 65px rgba(251,113,65,0.5));}}
+@keyframes scanLine{0%{transform:translateY(-100%);}100%{transform:translateY(420px);}}
+@keyframes stampReveal{0%{opacity:0;transform:scale(0.8) rotate(-5deg);}100%{opacity:1;transform:scale(1) rotate(0deg);}}
+@keyframes borderTrace{0%,100%{box-shadow:inset 0 0 0 1px rgba(251,113,65,0.2);}50%{box-shadow:inset 0 0 0 1px rgba(254,215,170,0.6),0 0 22px 2px rgba(251,113,65,0.25);}}
+
+.flip-card{width:clamp(180px,20vw,240px);height:clamp(300px,35vw,400px);perspective:1000px;flex-shrink:0;
+  animation:float1 4s ease-in-out infinite,glowOrange 3s ease-in-out infinite;}
+.flip-card:hover{filter:drop-shadow(0 0 32px rgba(254,215,170,1)) drop-shadow(0 0 75px rgba(251,113,65,0.6));}
+.flip-inner{width:100%;height:100%;transition:transform 0.8s;transform-style:preserve-3d;position:relative;}
+.flip-card:hover .flip-inner{transform:rotateY(180deg);}
+.flip-front,.flip-back{position:absolute;width:100%;height:100%;border-radius:18px;backface-visibility:hidden;}
+.flip-front{overflow:hidden;background:#150900;border:1px solid rgba(251,113,65,0.4);position:relative;}
+.flip-front img{width:100%;height:100%;object-fit:cover;object-position:top;}
+.flip-front::after{content:'';position:absolute;top:0;left:0;width:100%;height:45px;
+  background:linear-gradient(180deg,transparent,rgba(251,113,65,0.1),transparent);
+  animation:scanLine 3.5s linear infinite;pointer-events:none;}
+.flip-back{background:linear-gradient(135deg,#150900,#220d00);border:1px solid rgba(234,88,12,0.4);
+  display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;
+  transform:rotateY(180deg);font-size:clamp(11px,1.4vw,13px);line-height:1.8;
+  color:#fed7aa;font-family:'Share Tech Mono',monospace;}
+
+/* STAMP ELEMENT on flip back */
+.back-stamp{position:absolute;top:12px;right:12px;width:42px;height:42px;border:1.5px solid rgba(251,113,65,0.5);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:8px;color:#fb7141;
+  font-family:'Share Tech Mono',monospace;letter-spacing:1px;text-align:center;line-height:1.3;
+  animation:stampReveal 1s ease forwards;opacity:0;}
+
+.avatar-box{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#150900,#220d00);flex-direction:column;gap:10px;}
+.avatar-initials{font-size:58px;font-weight:700;font-family:'Share Tech Mono',monospace;
+  background:linear-gradient(135deg,#fb7141,#fed7aa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.avatar-ring{position:absolute;width:82px;height:82px;border:1px solid rgba(251,113,65,0.35);border-radius:50%;animation:spinSlow 7s linear infinite;}
+@keyframes spinSlow{to{transform:rotate(360deg);}}
+.avatar-ring2{position:absolute;width:104px;height:104px;border:1px dashed rgba(251,113,65,0.18);border-radius:50%;animation:spinSlow 12s linear infinite reverse;}
+
+.flip-card-card{width:clamp(240px,28vw,320px);height:clamp(300px,35vw,400px);perspective:1000px;flex-shrink:0;
+  animation:float2 5s ease-in-out infinite;filter:drop-shadow(0 0 18px rgba(234,88,12,0.5)) drop-shadow(0 0 45px rgba(251,113,65,0.2));}
+.flip-card-card:hover{filter:drop-shadow(0 0 30px rgba(254,215,170,0.9)) drop-shadow(0 0 70px rgba(251,113,65,0.5));}
+.flip-inner-card{width:100%;height:100%;transition:transform 0.8s;transform-style:preserve-3d;position:relative;}
+.flip-card-card:hover .flip-inner-card{transform:rotateY(180deg);}
+.flip-front-card,.flip-back-card{position:absolute;width:100%;height:100%;border-radius:20px;backface-visibility:hidden;}
+.flip-front-card{background:rgba(251,113,65,0.03);backdrop-filter:blur(20px);
+  border:1px solid rgba(251,113,65,0.22);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:26px;
+  animation:borderTrace 3.5s ease-in-out infinite;}
+.flip-back-card{background:linear-gradient(135deg,#150900,#220d00);border:1px solid rgba(234,88,12,0.3);
+  transform:rotateY(180deg);display:flex;align-items:center;justify-content:center;
+  text-align:justify;font-size:clamp(11px,1.3vw,13px);line-height:1.8;padding:24px;color:#fed7aa;font-family:'Share Tech Mono',monospace;}
+
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+.role{background:linear-gradient(90deg,#fb7141,#fed7aa,#ffffff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  font-size:clamp(14px,1.7vw,17px);font-weight:700;line-height:1.5;font-family:'Share Tech Mono',monospace;}
+.role::after{content:'_';-webkit-text-fill-color:#fb7141;animation:blink 1s step-end infinite;}
+.quote{font-size:clamp(11px,1.3vw,13px);margin-top:10px;line-height:1.7;opacity:0.8;color:#d1d5db;font-style:italic;}
+.badge{margin-top:10px;display:inline-block;padding:4px 14px;border:1px solid rgba(251,113,65,0.4);border-radius:3px;
+  font-size:clamp(9px,1.1vw,11px);color:#fb7141;font-family:'Share Tech Mono',monospace;letter-spacing:2px;
+  background:rgba(251,113,65,0.06);}
+
+/* PREP PROGRESS BARS */
+.meter-wrap{width:100%;margin-top:12px;}
+.meter-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:#fb7141;letter-spacing:1px;text-align:left;margin-bottom:3px;opacity:0.8;}
+.meter-track{width:100%;height:4px;background:rgba(251,113,65,0.1);border-radius:2px;overflow:hidden;}
+.meter-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#fb7141,#fed7aa);animation:fillBar 2.5s ease forwards;width:0%;}
+@keyframes fillBar{from{width:0%;}to{width:var(--w);}}
+
+.hint{margin-top:14px;font-size:clamp(10px,1.1vw,11px);color:#fb7141;opacity:0.7;
+  font-family:'Share Tech Mono',monospace;letter-spacing:2px;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:0.3;}50%{opacity:1;}}
+
+.btn-col{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.msg-btn{padding:13px 28px;border-radius:4px;border:1px solid #fb7141;background:transparent;
+  color:#fb7141;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;
+  font-size:clamp(12px,1.4vw,14px);transition:0.3s;white-space:nowrap;letter-spacing:2px;text-transform:uppercase;
+  box-shadow:0 0 14px rgba(251,113,65,0.25),inset 0 0 12px rgba(251,113,65,0.04);}
+.msg-btn:hover{background:rgba(251,113,65,0.1);transform:scale(1.06);
+  box-shadow:0 0 28px rgba(254,215,170,0.7),inset 0 0 28px rgba(251,113,65,0.1);color:#fff;border-color:#fed7aa;}
+
+.popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.93);
+  display:none;justify-content:center;align-items:center;z-index:1000;padding:16px;backdrop-filter:blur(8px);}
+.popup-content{background:rgba(15,8,0,0.97);border:1px solid rgba(251,113,65,0.32);
+  padding:32px;border-radius:12px;width:100%;max-width:520px;
+  animation:fadeIn 0.5s ease;position:relative;max-height:90vh;overflow-y:auto;
+  box-shadow:0 0 50px rgba(251,113,65,0.2),0 0 100px rgba(234,88,12,0.1);font-family:'Share Tech Mono',monospace;}
+.popup-title{background:linear-gradient(90deg,#fb7141,#fed7aa,#ffffff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:16px;font-size:clamp(15px,2.5vw,19px);font-weight:700;letter-spacing:2px;}
+.close{position:absolute;top:14px;right:18px;font-size:22px;cursor:pointer;color:#fb7141;transition:0.2s;}
+.close:hover{color:#fed7aa;transform:scale(1.2);}
+.popup-content p{font-size:clamp(11px,1.4vw,13px);line-height:2.1;text-align:justify;color:#fed7aa;}
+.terminal-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(251,113,65,0.2);}
+.dot{width:10px;height:10px;border-radius:50%;}
+.dot-r{background:#ff5f57;}.dot-y{background:#febc2e;}.dot-g{background:#28c840;}
+.terminal-title{font-family:'Share Tech Mono',monospace;font-size:11px;color:#555;margin-left:auto;letter-spacing:2px;}
+@keyframes fadeIn{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
+
+@media(max-width:900px){.main-row{gap:18px;padding:16px 16px 40px;min-height:auto;}.flip-card{width:180px;height:300px;}.flip-card-card{width:260px;height:300px;}}
+@media(max-width:700px){.main-row{flex-direction:column;gap:18px;min-height:auto;}.flip-card{width:240px;height:320px;}.flip-card-card{width:290px;height:300px;}}
+@media(max-width:480px){.header{font-size:clamp(18px,7vw,28px);letter-spacing:2px;padding:20px 12px 4px;}.flip-card{width:82vw;max-width:270px;height:340px;}.flip-card-card{width:82vw;max-width:310px;height:280px;}.msg-btn{width:82vw;max-width:280px;}.main-row{gap:14px;padding:10px 10px 40px;}}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-ring"></div>
+  <span id="typing"></span>
+</div>
+
+<div id="main">
+  <canvas id="canvas"></canvas>
+
+  <!-- ASHOKA CHAKRA SVG WATERMARK -->
+  <svg class="chakra-bg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="100" cy="100" r="90" stroke="#fb7141" stroke-width="2"/>
+    <circle cx="100" cy="100" r="70" stroke="#fb7141" stroke-width="1.5"/>
+    <circle cx="100" cy="100" r="12" stroke="#fb7141" stroke-width="2" fill="none"/>
+    <circle cx="100" cy="100" r="5" fill="#fb7141"/>
+    <!-- 24 spokes -->
+    <g stroke="#fb7141" stroke-width="1.2">
+      <line x1="100" y1="88" x2="100" y2="30"/><line x1="112.5" y1="91.5" x2="145.6" y2="37.3"/>
+      <line x1="120.6" y1="100" x2="170" y2="100"/><line x1="112.5" y1="108.5" x2="145.6" y2="162.7"/>
+      <line x1="100" y1="112" x2="100" y2="170"/><line x1="87.5" y1="108.5" x2="54.4" y2="162.7"/>
+      <line x1="79.4" y1="100" x2="30" y2="100"/><line x1="87.5" y1="91.5" x2="54.4" y2="37.3"/>
+      <line x1="106.2" y1="88.8" x2="122.3" y2="34.9"/><line x1="111.3" y1="93.8" x2="163.2" y2="72.6"/>
+      <line x1="111.3" y1="106.2" x2="163.2" y2="127.4"/><line x1="106.2" y1="111.2" x2="122.3" y2="165.1"/>
+      <line x1="93.8" y1="111.2" x2="77.7" y2="165.1"/><line x1="88.7" y1="106.2" x2="36.8" y2="127.4"/>
+      <line x1="88.7" y1="93.8" x2="36.8" y2="72.6"/><line x1="93.8" y1="88.8" x2="77.7" y2="34.9"/>
+    </g>
+  </svg>
+
+  <div class="header" id="name"></div>
+  <div class="tagline">[ Study · Serve · Succeed · Govern ]</div>
+  <div class="seal-bar">
+    <div class="seal-line"></div>
+    <div class="seal-text">GOVERNMENT SERVICE ASPIRANT</div>
+    <div class="seal-line right"></div>
+  </div>
+
+  <div class="main-row">
+
+    <!-- IMAGE CARD -->
+    <div class="flip-card">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <img src="images/KavyaDharshini.png" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div class="avatar-box" style="display:none;">
+            <div style="position:relative;display:flex;align-items:center;justify-content:center;width:120px;height:120px;">
+              <div class="avatar-ring"></div><div class="avatar-ring2"></div>
+              <span class="avatar-initials">KD</span>
+            </div>
+          </div>
+        </div>
+        <div class="flip-back">
+          <div class="back-stamp" style="animation-delay:0.5s">IAS<br>PREP</div>
+          <p>&gt; mission = "serve_the_nation"<br><br>She doesn't just dream of a government seat — she earns it, one answer sheet at a time.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFO CARD -->
+    <div class="flip-card-card">
+      <div class="flip-inner-card">
+        <div class="flip-front-card">
+          <p class="role">Govt. Job Aspirant</p>
+          <p class="quote">"Service to the nation is the highest calling. She answered."</p>
+          <span class="badge">// MSc Computer Science</span>
+
+          <div class="meter-wrap">
+            <div class="meter-label">&gt; DEDICATION_INDEX</div>
+            <div class="meter-track"><div class="meter-fill" style="--w:95%"></div></div>
+          </div>
+          <div class="meter-wrap" style="margin-top:7px;">
+            <div class="meter-label">&gt; EXAM_READINESS</div>
+            <div class="meter-track"><div class="meter-fill" style="--w:92%;animation-delay:0.4s"></div></div>
+          </div>
+          <div class="meter-wrap" style="margin-top:7px;">
+            <div class="meter-label">&gt; WILLPOWER_SCORE</div>
+            <div class="meter-track"><div class="meter-fill" style="--w:100%;animation-delay:0.8s"></div></div>
+          </div>
+
+          <p class="hint">&gt; hover to explore_</p>
+        </div>
+        <div class="flip-back-card">
+          <p>She chose the harder path — the one that demands everything and promises nothing easy. But that's exactly how she knows it's worth it. Uniform, badge, and a nation to serve. That's the dream. And she's making it real. 🇮🇳</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUTTON -->
+    <div class="btn-col">
+      <button class="msg-btn" onclick="showMsg(event)">&gt; View_Message</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- POPUP -->
+<div id="popup" class="popup">
+  <div class="popup-content">
+    <span class="close" onclick="closePopup()">&times;</span>
+    <div class="terminal-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="terminal-title">mission.exe</span>
+    </div>
+    <p class="popup-title">✦ FOR THE ONE WHO WILL SERVE ✦</p>
+    <p>
+      &gt; The road to a government post is not a sprint. It's a marathon run in silence, in early mornings, in highlighted textbooks and mock tests no one sees.<br><br>
+      &gt; And you've been running it anyway — with everything you have.<br><br>
+      &gt; Every exam you've prepared for is a brick. Every syllabus you mastered is a wall. And one day soon, those walls will become the office from which you change lives.<br><br>
+      &gt; People see the posting letter. They don't see the years behind it. But you know what those years cost — and you paid every bit of it.<br><br>
+      &gt; Government service is not just a job. It's a promise to every citizen who trusts the system. And the system needs people like you — sharp, sincere, and unshakeable.<br><br>
+      &gt; The selection list will have your name. Not by luck. By everything you've already put in.<br><br>
+      &gt; Keep going, Kavya. The nation is waiting for you. 🧡<br><br>
+      &gt; // end of message — your posting awaits.
+    </p>
+  </div>
+</div>
+
+<script>
+let text=["Initializing system...","Loading aspirant profile...","Welcome, Kavya Dharshini!"];
+let i=0,j=0;
+function typeLoader(){
+  let el=document.getElementById("typing");
+  if(j<text[i].length){el.innerHTML+=text[i][j];j++;setTimeout(typeLoader,45);}
+  else{setTimeout(()=>{el.innerHTML="";j=0;i++;if(i<text.length)typeLoader();else startMain();},900);}
+}
+typeLoader();
+
+function startMain(){
+  document.getElementById("loader").style.display="none";
+  document.getElementById("main").style.display="block";
+  typeName();resizeCanvas();draw();
+}
+
+let nameText="Kavya Dharshini",k=0;
+function typeName(){
+  if(k<nameText.length){document.getElementById("name").innerHTML+=nameText[k];k++;setTimeout(typeName,80);}
+}
+
+let canvas=document.getElementById("canvas"),ctx=canvas.getContext("2d");
+function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+resizeCanvas();window.addEventListener("resize",resizeCanvas);
+
+/* RISING EMBERS */
+let embers=[];
+for(let n=0;n<90;n++){
+  embers.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,
+    r:Math.random()*2+0.5,speedX:(Math.random()-0.5)*0.5,speedY:-(Math.random()*0.7+0.2),
+    alpha:Math.random(),hue:Math.floor(Math.random()*30)+15});
+}
+
+/* DIAGONAL STREAKS */
+let streaks=[];
+function addStreak(){
+  streaks.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height*0.5,
+    len:Math.random()*100+60,speed:Math.random()*9+5,alpha:1,angle:Math.PI/9+Math.random()*0.2});
+}
+setInterval(addStreak,2600);
+
+/* FLOATING DOTS GRID (govt. document feel) */
+let dots=[];
+for(let n=0;n<40;n++){
+  dots.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,
+    r:Math.random()*1.2+0.3,speedY:-(Math.random()*0.3+0.1),alpha:Math.random()*0.25+0.05});
+}
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  embers.forEach(e=>{
+    e.x+=e.speedX;e.y+=e.speedY;e.alpha-=0.003;
+    if(e.alpha<=0||e.y<0){e.x=Math.random()*canvas.width;e.y=canvas.height+5;e.alpha=Math.random()*0.8+0.2;}
+    ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,Math.PI*2);
+    ctx.fillStyle=`hsla(${e.hue},95%,65%,${e.alpha})`;ctx.fill();
+  });
+  dots.forEach(d=>{
+    d.y-=d.speedY;
+    if(d.y<0){d.y=canvas.height;d.x=Math.random()*canvas.width;}
+    ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(251,113,65,${d.alpha})`;ctx.fill();
+  });
+  streaks.forEach((s,idx)=>{
+    ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.angle);
+    let grad=ctx.createLinearGradient(0,0,s.len,0);
+    grad.addColorStop(0,'rgba(234,88,12,0)');
+    grad.addColorStop(1,`rgba(254,215,170,${s.alpha})`);
+    ctx.strokeStyle=grad;ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(s.len,0);ctx.stroke();
+    ctx.restore();
+    s.x+=s.speed*Math.cos(s.angle);s.y+=s.speed*Math.sin(s.angle);s.alpha-=0.018;
+    if(s.alpha<=0) streaks.splice(idx,1);
+  });
+  requestAnimationFrame(draw);
+}
+
+function showMsg(e){e.stopPropagation();document.getElementById("popup").style.display="flex";}
+function closePopup(){document.getElementById("popup").style.display="none";}
+</script>
+</body>
+</html>

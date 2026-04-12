@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Future Vision</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  font-family:'Poppins',sans-serif;
+  background:#0a0a1a;
+  color:white;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* LOADER */
+#loader{
+  position:fixed;
+  width:100%;height:100%;
+  background:#0a0a1a;
+  display:flex;
+  justify-content:center;align-items:center;
+  font-size:18px;z-index:999;
+  flex-direction:column;
+  gap:20px;
+}
+.loader-ring{
+  width:60px;height:60px;
+  border:3px solid rgba(167,139,250,0.2);
+  border-top:3px solid #a78bfa;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+#typing{color:#a78bfa;font-size:16px;letter-spacing:2px;}
+
+canvas{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* NEW BACKGROUND — deep purple-to-teal */
+#main{
+  display:none;
+  min-height:100vh;
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 30%, #0d1f3c 60%, #0a1628 100%);
+  position:relative;z-index:1;
+}
+
+/* Animated mesh overlay */
+#main::before{
+  content:'';
+  position:fixed;
+  top:0;left:0;width:100%;height:100%;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(139,92,246,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(34,211,238,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 80%, rgba(236,72,153,0.08) 0%, transparent 50%);
+  pointer-events:none;
+  z-index:0;
+  animation:meshShift 8s ease-in-out infinite alternate;
+}
+@keyframes meshShift{
+  0%{opacity:0.7;}
+  100%{opacity:1;}
+}
+
+/* HEADER */
+.header{
+  text-align:center;
+  font-size:clamp(26px,6vw,58px);
+  font-weight:700;
+  letter-spacing:4px;
+  background: linear-gradient(90deg, #a78bfa, #22d3ee, #f472b6, #a78bfa);
+  background-size:300% auto;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:fadeDown 1s ease, shimmer 4s linear infinite;
+  padding:30px 20px 10px;
+  position:relative;z-index:1;
+}
+@keyframes shimmer{
+  0%{background-position:0% center;}
+  100%{background-position:300% center;}
+}
+
+/* MAIN ROW */
+.main-row{
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:24px;
+  padding:20px 20px 40px;
+  min-height:calc(100vh - 110px);
+  position:relative;z-index:1;
+}
+
+/* FLOATING ANIMATION — each card floats at different speed */
+@keyframes float1{0%,100%{transform:translateY(0px);}50%{transform:translateY(-14px);}}
+@keyframes float2{0%,100%{transform:translateY(0px);}50%{transform:translateY(-10px);}}
+@keyframes float3{0%,100%{transform:translateY(0px);}50%{transform:translateY(-12px);}}
+
+/* FLIP IMAGE CARD */
+.flip-card{
+  width:clamp(150px,18vw,210px);
+  height:clamp(280px,32vw,360px);
+  perspective:1000px;
+  flex-shrink:0;
+  animation:float1 4s ease-in-out infinite;
+  /* GLOW */
+  filter: drop-shadow(0 0 18px rgba(139,92,246,0.6)) drop-shadow(0 0 40px rgba(139,92,246,0.3));
+  transition:filter 0.3s;
+}
+.flip-card:nth-child(2){animation:float2 5s ease-in-out infinite;filter:drop-shadow(0 0 18px rgba(34,211,238,0.6)) drop-shadow(0 0 40px rgba(34,211,238,0.3));}
+.flip-card:hover{filter:drop-shadow(0 0 28px rgba(244,114,182,0.9)) drop-shadow(0 0 60px rgba(244,114,182,0.4));}
+
+.flip-inner{width:100%;height:100%;transition:transform 0.8s;transform-style:preserve-3d;position:relative;}
+.flip-card:hover .flip-inner{transform:rotateY(180deg);}
+.flip-front,.flip-back{position:absolute;width:100%;height:100%;border-radius:20px;backface-visibility:hidden;}
+.flip-front{
+  overflow:hidden;background:#000;
+  border:1px solid rgba(139,92,246,0.4);
+}
+.flip-front img{width:100%;height:100%;object-fit:cover;object-position:top;}
+.flip-back{
+  background:linear-gradient(135deg,#1a0a2e,#0d1f3c);
+  border:1px solid rgba(34,211,238,0.4);
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;padding:18px;
+  transform:rotateY(180deg);
+  font-size:clamp(11px,1.5vw,13px);line-height:1.6;
+  color:#e2e8f0;
+}
+
+/* FLIP INFO CARD */
+.flip-card-card{
+  width:clamp(230px,28vw,300px);
+  height:clamp(280px,32vw,360px);
+  perspective:1000px;flex-shrink:0;
+  animation:float3 4.5s ease-in-out infinite;
+  /* GLOW */
+  filter:drop-shadow(0 0 20px rgba(244,114,182,0.5)) drop-shadow(0 0 50px rgba(139,92,246,0.3));
+}
+.flip-card-card:hover{filter:drop-shadow(0 0 30px rgba(34,211,238,0.8)) drop-shadow(0 0 70px rgba(34,211,238,0.4));}
+
+.flip-inner-card{width:100%;height:100%;transition:transform 0.8s;transform-style:preserve-3d;position:relative;}
+.flip-card-card:hover .flip-inner-card{transform:rotateY(180deg);}
+.flip-front-card,.flip-back-card{position:absolute;width:100%;height:100%;border-radius:22px;backface-visibility:hidden;}
+.flip-front-card{
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(167,139,250,0.3);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:24px;
+}
+.flip-back-card{
+  background:linear-gradient(135deg,#1a0a2e,#0d1f3c);
+  border:1px solid rgba(34,211,238,0.3);
+  transform:rotateY(180deg);
+  display:flex;align-items:center;justify-content:center;
+  text-align:justify;
+  font-size:clamp(11px,1.3vw,13px);line-height:1.7;padding:22px;
+  color:#e2e8f0;
+}
+
+.role{
+  background:linear-gradient(90deg,#a78bfa,#22d3ee);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  font-size:clamp(13px,1.6vw,16px);font-weight:700;line-height:1.5;
+}
+.quote{font-size:clamp(11px,1.3vw,13px);margin-top:10px;line-height:1.6;opacity:0.85;color:#cbd5e1;}
+.batch{margin-top:8px;font-size:clamp(10px,1.2vw,12px);opacity:0.6;color:#94a3b8;}
+.hint{
+  margin-top:12px;font-size:clamp(10px,1.1vw,11px);
+  color:#a78bfa;opacity:0.8;
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:0.5;}50%{opacity:1;}}
+
+/* BUTTON */
+.btn-col{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.msg-btn{
+  padding:13px 26px;border-radius:14px;border:none;
+  background:linear-gradient(135deg,#a78bfa,#22d3ee);
+  color:white;font-weight:700;cursor:pointer;
+  font-family:'Poppins',sans-serif;
+  font-size:clamp(12px,1.4vw,15px);
+  transition:0.3s;white-space:nowrap;
+  box-shadow:0 0 20px rgba(167,139,250,0.5);
+  letter-spacing:0.5px;
+}
+.msg-btn:hover{
+  transform:scale(1.08);
+  box-shadow:0 0 35px rgba(34,211,238,0.7), 0 0 70px rgba(167,139,250,0.4);
+}
+
+/* POPUP */
+.popup{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(10,10,26,0.9);
+  display:none;justify-content:center;align-items:center;
+  z-index:1000;padding:16px;
+  backdrop-filter:blur(6px);
+}
+.popup-content{
+  background:rgba(26,10,46,0.85);
+  border:1px solid rgba(167,139,250,0.3);
+  backdrop-filter:blur(30px);
+  padding:30px;border-radius:24px;
+  width:100%;max-width:500px;
+  animation:fadeIn 0.5s ease;position:relative;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:0 0 40px rgba(139,92,246,0.3);
+}
+.popup-content h2{
+  background:linear-gradient(90deg,#a78bfa,#22d3ee);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:16px;font-size:clamp(16px,3vw,22px);
+}
+.close{position:absolute;top:14px;right:18px;font-size:22px;cursor:pointer;color:#a78bfa;transition:0.2s;}
+.close:hover{color:#22d3ee;transform:scale(1.2);}
+.popup-content p{font-size:clamp(12px,1.5vw,14px);line-height:1.9;text-align:justify;color:#cbd5e1;}
+
+@keyframes fadeDown{from{opacity:0;transform:translateY(-30px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;transform:scale(0.9);}to{opacity:1;transform:scale(1);}}
+
+/* TABLET */
+@media(max-width:900px){
+  .main-row{gap:16px;padding:16px 16px 40px;min-height:auto;}
+  .flip-card{width:160px;height:280px;}
+  .flip-card-card{width:250px;height:280px;}
+}
+/* MOBILE LANDSCAPE */
+@media(max-width:700px){
+  .main-row{flex-direction:column;gap:18px;padding:16px 12px 40px;min-height:auto;}
+  .flip-card{width:220px;height:300px;}
+  .flip-card-card{width:280px;height:240px;}
+}
+/* MOBILE PORTRAIT */
+@media(max-width:480px){
+  .header{font-size:clamp(22px,8vw,34px);letter-spacing:1px;padding:20px 12px 8px;}
+  .flip-card{width:80vw;max-width:260px;height:320px;}
+  .flip-card-card{width:80vw;max-width:300px;height:220px;}
+  .msg-btn{width:80vw;max-width:280px;text-align:center;}
+  .main-row{gap:14px;padding:10px 10px 40px;}
+}
+/* VERY SMALL */
+@media(max-width:360px){
+  .flip-card{height:260px;}
+  .flip-card-card{height:200px;}
+}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-ring"></div>
+  <span id="typing"></span>
+</div>
+
+<div id="main">
+  <canvas id="canvas"></canvas>
+  <div class="header" id="name"></div>
+
+  <div class="main-row">
+
+    <!-- IMAGE 1 -->
+    <div class="flip-card">
+      <div class="flip-inner">
+        <div class="flip-front"><img src="images/Srinithi.png" alt="Professor"></div>
+        <div class="flip-back"><p>Inspiring minds and shaping futures with knowledge.</p></div>
+      </div>
+    </div>
+
+    <!-- IMAGE 2 -->
+    <div class="flip-card">
+      <div class="flip-inner">
+        <div class="flip-front"><img src="images/Srinithi_Passion.png" alt="Bakery"></div>
+        <div class="flip-back"><p>Turning passion into sweetness through creativity.</p></div>
+      </div>
+    </div>
+
+    <!-- INFO CARD -->
+    <div class="flip-card-card">
+      <div class="flip-inner-card">
+        <div class="flip-front-card">
+          <p class="role">Assistant Professor<br>Founder, Creamy Delights</p>
+          <p class="quote">"Blending knowledge with creativity and passion."</p>
+          <p class="batch">MSc Computer Science (2024–2026)</p>
+          <p class="hint">✦ Hover to explore ✦</p>
+        </div>
+        <div class="flip-back-card">
+          <p>Education shapes minds, while passion shapes identity. Balancing both is not easy — but it is what makes your journey meaningful. Keep teaching. Keep creating. Keep inspiring. ✨</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUTTON -->
+    <div class="btn-col">
+      <button class="msg-btn" onclick="showMsg(event)">View Message 💙</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- POPUP -->
+<div id="popup" class="popup">
+  <div class="popup-content">
+    <span class="close" onclick="closePopup()">&times;</span>
+    <h2>✨ Your Journey Starts Now ✨</h2>
+    <p>
+      Every step of your journey reflects the hard work, discipline, and determination you've carried with you all along.
+      Nothing you've achieved came easy — and that's exactly what makes it meaningful.
+      Balancing responsibilities, chasing your goals, and still finding the strength to follow your passion is not something everyone can do.
+      It takes courage to build a career, and even more courage to build a dream alongside it.
+      There must have been days when it felt overwhelming, moments where giving up would have been easier — but you didn't stop.
+      You kept moving forward, quietly proving your strength through consistency and effort.
+      Keep believing in that same strength. Keep trusting the process you've built with so much dedication.
+      Because everything you are working for is slowly taking shape, even on the days you don't see it.
+      You are not just creating success — you are creating a life filled with purpose, passion, and impact.
+      Keep going. You've already come so far… and the best is yet to come. 💙
+    </p>
+  </div>
+</div>
+
+<script>
+/* LOADER */
+let text=["Initializing Future...","Loading Profile...","Welcome Srinidhi !"];
+let i=0,j=0;
+function typeLoader(){
+  let el=document.getElementById("typing");
+  if(j<text[i].length){el.innerHTML+=text[i][j];j++;setTimeout(typeLoader,50);}
+  else{setTimeout(()=>{el.innerHTML="";j=0;i++;if(i<text.length)typeLoader();else startMain();},900);}
+}
+typeLoader();
+
+function startMain(){
+  document.getElementById("loader").style.display="none";
+  document.getElementById("main").style.display="block";
+  typeName();
+  resizeCanvas();
+}
+
+/* NAME */
+let nameText="Srinithi",k=0;
+function typeName(){
+  if(k<nameText.length){document.getElementById("name").innerHTML+=nameText[k];k++;setTimeout(typeName,90);}
+}
+
+/* CANVAS — stars + shooting stars */
+let canvas=document.getElementById("canvas");
+let ctx=canvas.getContext("2d");
+function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+resizeCanvas();
+window.addEventListener("resize",resizeCanvas);
+
+/* STARS */
+let stars=[];
+for(let n=0;n<120;n++){
+  stars.push({
+    x:Math.random()*window.innerWidth,
+    y:Math.random()*window.innerHeight,
+    r:Math.random()*1.5+0.3,
+    alpha:Math.random(),
+    speed:Math.random()*0.005+0.002,
+    hue: Math.random()>0.5 ? '200,200,255' : '167,139,250'
+  });
+}
+
+/* SHOOTING STARS */
+let shoots=[];
+function addShoot(){
+  shoots.push({
+    x:Math.random()*canvas.width*0.7,
+    y:Math.random()*canvas.height*0.4,
+    len:Math.random()*120+60,
+    speed:Math.random()*8+6,
+    alpha:1,
+    angle: Math.PI/5
+  });
+}
+setInterval(addShoot,2800);
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  /* stars */
+  stars.forEach(s=>{
+    s.alpha+=s.speed;
+    if(s.alpha>1||s.alpha<0) s.speed*=-1;
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${s.hue},${Math.abs(s.alpha)})`;
+    ctx.fill();
+  });
+
+  /* shooting stars */
+  shoots.forEach((s,idx)=>{
+    ctx.save();
+    ctx.translate(s.x,s.y);
+    ctx.rotate(s.angle);
+    let grad=ctx.createLinearGradient(0,0,s.len,0);
+    grad.addColorStop(0,'rgba(167,139,250,0)');
+    grad.addColorStop(1,`rgba(34,211,238,${s.alpha})`);
+    ctx.strokeStyle=grad;
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.lineTo(s.len,0);
+    ctx.stroke();
+    ctx.restore();
+    s.x+=s.speed*Math.cos(s.angle);
+    s.y+=s.speed*Math.sin(s.angle);
+    s.alpha-=0.018;
+    if(s.alpha<=0) shoots.splice(idx,1);
+  });
+
+  requestAnimationFrame(draw);
+}
+draw();
+
+function showMsg(e){e.stopPropagation();document.getElementById("popup").style.display="flex";}
+function closePopup(){document.getElementById("popup").style.display="none";}
+</script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <title>Future Vision</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        height: 100vh;
+        background: linear-gradient(135deg, #0f172a, #1e3a8a, #9333ea);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        overflow: hidden;
+      }
+
+      /* Floating animation background */
+      body::before {
+        content: "";
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.1) 10%,
+          transparent 10%
+        );
+        background-size: 50px 50px;
+        animation: moveBg 20s linear infinite;
+      }
+
+      @keyframes moveBg {
+        0% {
+          transform: translate(0, 0);
+        }
+        100% {
+          transform: translate(-50px, -50px);
+        }
+      }
+
+      /* Glass Card */
+      .card {
+        position: relative;
+        backdrop-filter: blur(15px);
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 30px;
+        width: 320px;
+        text-align: center;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        animation: fadeIn 1.5s ease;
+      }
+
+      /* Fade Animation */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Image */
+      .card img {
+        width: 140px;
+        border-radius: 50%;
+        margin-bottom: 15px;
+        border: 3px solid white;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      /* Name */
+      h1 {
+        font-size: 24px;
+      }
+
+      /* Role */
+      .role {
+        color: #38bdf8;
+        margin: 8px 0;
+      }
+
+      /* Quote */
+      .quote {
+        font-size: 14px;
+        opacity: 0.9;
+        margin-top: 10px;
+      }
+
+      /* Batch */
+      .batch {
+        margin-top: 15px;
+        font-size: 12px;
+        opacity: 0.7;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <img src="images/MohamedAsraff.png" alt="Future Arjun" />
+
+      <h1>🚀 Arjun</h1>
+
+      <p class="role">Full Stack Developer 💻</p>
+
+      <p class="quote">
+        “Building scalable apps, solving real-world problems, and turning ideas
+        into reality. Keep coding, keep growing 🚀”
+      </p>
+
+      <p class="batch">MSc Computer Science (2024–2026)</p>
+    </div>
+  </body>
+</html>
