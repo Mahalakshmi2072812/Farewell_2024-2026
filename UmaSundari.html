@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uma Sundari</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  font-family:'DM Sans',sans-serif;
+  background:#050d1f;
+  color:#e8e0d0;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* LOADER */
+#loader{
+  position:fixed;
+  width:100%;height:100%;
+  background:#050d1f;
+  display:flex;
+  justify-content:center;align-items:center;
+  z-index:999;
+  flex-direction:column;
+  gap:22px;
+}
+.loader-ring{
+  width:58px;height:58px;
+  border:2px solid rgba(220,210,190,0.15);
+  border-top:2px solid #d4c5a0;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+#typing{
+  color:#d4c5a0;
+  font-size:15px;
+  letter-spacing:3px;
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+}
+
+canvas{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* BACKGROUND */
+#main{
+  display:none;
+  min-height:100vh;
+  background:linear-gradient(145deg,#050d1f 0%,#0a1628 35%,#0d1f3c 65%,#060e20 100%);
+  position:relative;z-index:1;
+}
+
+#main::before{
+  content:'';
+  position:fixed;
+  top:0;left:0;width:100%;height:100%;
+  background:
+    radial-gradient(ellipse at 15% 45%, rgba(30,60,120,0.25) 0%, transparent 55%),
+    radial-gradient(ellipse at 88% 18%, rgba(212,197,160,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 88%, rgba(20,40,90,0.2) 0%, transparent 55%);
+  pointer-events:none;
+  z-index:0;
+  animation:meshShift 9s ease-in-out infinite alternate;
+}
+@keyframes meshShift{0%{opacity:0.7;}100%{opacity:1;}}
+
+/* SUBTLE GRID OVERLAY */
+#main::after{
+  content:'';
+  position:fixed;
+  top:0;left:0;width:100%;height:100%;
+  background-image:
+    linear-gradient(rgba(212,197,160,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212,197,160,0.03) 1px, transparent 1px);
+  background-size:60px 60px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* HEADER */
+.header{
+  text-align:center;
+  font-size:clamp(26px,5.5vw,60px);
+  font-weight:700;
+  font-family:'Cormorant Garamond',serif;
+  letter-spacing:6px;
+  background:linear-gradient(90deg,#8ca8d8,#d4c5a0,#f0e8d8,#d4c5a0,#8ca8d8);
+  background-size:300% auto;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:fadeDown 1s ease, shimmer 6s linear infinite;
+  padding:32px 20px 6px;
+  position:relative;z-index:1;
+  text-transform:uppercase;
+}
+@keyframes shimmer{0%{background-position:0% center;}100%{background-position:300% center;}}
+
+/* TAGLINE */
+.tagline{
+  text-align:center;
+  font-size:clamp(10px,1.2vw,12px);
+  color:#8ca8d8;
+  letter-spacing:5px;
+  text-transform:uppercase;
+  font-weight:500;
+  opacity:0.65;
+  margin-top:-2px;
+  position:relative;z-index:1;
+  animation:fadeDown 1.2s ease;
+  font-family:'DM Sans',sans-serif;
+}
+
+/* DECORATIVE LINE */
+.deco-line{
+  display:flex;align-items:center;justify-content:center;
+  gap:12px;margin:10px auto 0;
+  position:relative;z-index:1;
+  animation:fadeDown 1.3s ease;
+}
+.deco-line span{
+  display:block;height:1px;width:60px;
+  background:linear-gradient(90deg,transparent,#d4c5a0,transparent);
+}
+.deco-line i{
+  width:6px;height:6px;border-radius:50%;
+  background:#d4c5a0;opacity:0.7;
+  display:block;
+}
+
+/* MAIN ROW */
+.main-row{
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:28px;
+  padding:18px 20px 40px;
+  min-height:calc(100vh - 130px);
+  position:relative;z-index:1;
+}
+
+/* FLOAT */
+@keyframes float1{0%,100%{transform:translateY(0px);}50%{transform:translateY(-12px);}}
+@keyframes float2{0%,100%{transform:translateY(0px);}50%{transform:translateY(-10px);}}
+@keyframes float3{0%,100%{transform:translateY(0px);}50%{transform:translateY(-13px);}}
+
+/* IMAGE CARD */
+.flip-card{
+  width:clamp(150px,18vw,210px);
+  height:clamp(290px,34vw,370px);
+  perspective:1000px;
+  flex-shrink:0;
+  animation:float1 4.5s ease-in-out infinite;
+  filter:drop-shadow(0 0 16px rgba(140,168,216,0.5)) drop-shadow(0 0 40px rgba(140,168,216,0.2));
+  transition:filter 0.3s;
+}
+.flip-card:hover{
+  filter:drop-shadow(0 0 26px rgba(212,197,160,0.85)) drop-shadow(0 0 60px rgba(212,197,160,0.35));
+}
+
+.flip-inner{width:100%;height:100%;transition:transform 0.9s;transform-style:preserve-3d;position:relative;}
+.flip-card:hover .flip-inner{transform:rotateY(180deg);}
+.flip-front,.flip-back{position:absolute;width:100%;height:100%;border-radius:20px;backface-visibility:hidden;}
+.flip-front{
+  overflow:hidden;
+  background:#0a1628;
+  border:1px solid rgba(212,197,160,0.25);
+}
+.flip-front img{width:100%;height:100%;object-fit:cover;object-position:top;}
+
+/* PLACEHOLDER */
+.placeholder{
+  width:100%;height:100%;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:linear-gradient(160deg,#0a1628,#0d1f3c);
+  gap:14px;
+}
+.placeholder .icon{font-size:50px;}
+.placeholder .label{
+  font-size:11px;color:#d4c5a0;
+  letter-spacing:3px;text-transform:uppercase;
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+}
+
+.flip-back{
+  background:linear-gradient(145deg,#0a1628,#0d1f3c);
+  border:1px solid rgba(140,168,216,0.25);
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;padding:22px;
+  transform:rotateY(180deg);
+  font-size:clamp(11px,1.4vw,13px);line-height:1.8;
+  color:#c8d8f0;
+  font-style:italic;
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(13px,1.6vw,15px);
+}
+
+/* INFO CARD */
+.flip-card-card{
+  width:clamp(240px,28vw,310px);
+  height:clamp(290px,34vw,370px);
+  perspective:1000px;flex-shrink:0;
+  animation:float2 5.2s ease-in-out infinite;
+  filter:drop-shadow(0 0 18px rgba(212,197,160,0.35)) drop-shadow(0 0 45px rgba(140,168,216,0.18));
+}
+.flip-card-card:hover{
+  filter:drop-shadow(0 0 28px rgba(140,168,216,0.75)) drop-shadow(0 0 65px rgba(140,168,216,0.3));
+}
+
+.flip-inner-card{width:100%;height:100%;transition:transform 0.9s;transform-style:preserve-3d;position:relative;}
+.flip-card-card:hover .flip-inner-card{transform:rotateY(180deg);}
+.flip-front-card,.flip-back-card{position:absolute;width:100%;height:100%;border-radius:22px;backface-visibility:hidden;}
+.flip-front-card{
+  background:rgba(10,22,40,0.7);
+  backdrop-filter:blur(24px);
+  border:1px solid rgba(212,197,160,0.2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:28px;
+  box-shadow:inset 0 0 40px rgba(140,168,216,0.05);
+}
+.flip-back-card{
+  background:linear-gradient(145deg,#0a1628,#0d1f3c);
+  border:1px solid rgba(140,168,216,0.2);
+  transform:rotateY(180deg);
+  display:flex;align-items:center;justify-content:center;
+  text-align:justify;
+  font-size:clamp(12px,1.4vw,14px);line-height:1.9;padding:26px;
+  color:#c8d8f0;
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+}
+
+.role{
+  background:linear-gradient(90deg,#8ca8d8,#d4c5a0,#8ca8d8);
+  background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  font-size:clamp(14px,1.7vw,18px);font-weight:600;line-height:1.5;
+  font-family:'Cormorant Garamond',serif;
+  animation:shimmer 5s linear infinite;
+  letter-spacing:1px;
+}
+.quote{
+  font-size:clamp(12px,1.4vw,14px);margin-top:14px;line-height:1.8;
+  color:#a8b8d0;font-style:italic;
+  font-family:'Cormorant Garamond',serif;
+}
+.batch{
+  margin-top:10px;font-size:clamp(10px,1.2vw,11px);
+  color:#d4c5a0;opacity:0.5;letter-spacing:2px;
+  text-transform:uppercase;font-weight:500;
+}
+.hint{
+  margin-top:14px;font-size:clamp(10px,1.1vw,11px);
+  color:#8ca8d8;opacity:0.65;letter-spacing:2px;
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  animation:pulse 2.5s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:0.3;}50%{opacity:0.9;}}
+
+/* BUTTON */
+.btn-col{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.msg-btn{
+  padding:13px 28px;border-radius:4px;
+  border:1px solid rgba(212,197,160,0.5);
+  background:transparent;
+  color:#d4c5a0;font-weight:500;cursor:pointer;
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(13px,1.5vw,16px);
+  transition:0.3s;white-space:nowrap;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  font-style:italic;
+  position:relative;
+  overflow:hidden;
+}
+.msg-btn::before{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(140,168,216,0.15),rgba(212,197,160,0.1));
+  opacity:0;transition:0.3s;
+}
+.msg-btn:hover::before{opacity:1;}
+.msg-btn:hover{
+  border-color:#d4c5a0;
+  color:#f0e8d8;
+  transform:translateY(-2px);
+  box-shadow:0 8px 30px rgba(212,197,160,0.2), 0 0 20px rgba(140,168,216,0.15);
+}
+
+/* POPUP */
+.popup{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(5,13,31,0.93);
+  display:none;justify-content:center;align-items:center;
+  z-index:1000;padding:16px;
+  backdrop-filter:blur(10px);
+}
+.popup-content{
+  background:rgba(10,22,40,0.97);
+  border:1px solid rgba(212,197,160,0.25);
+  backdrop-filter:blur(30px);
+  padding:36px;border-radius:8px;
+  width:100%;max-width:520px;
+  animation:fadeIn 0.5s ease;position:relative;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(140,168,216,0.1);
+}
+
+/* POPUP HEADER ORNAMENT */
+.popup-ornament{
+  text-align:center;margin-bottom:6px;
+  font-size:18px;color:#d4c5a0;opacity:0.5;letter-spacing:8px;
+}
+.popup-title{
+  text-align:center;
+  background:linear-gradient(90deg,#8ca8d8,#d4c5a0,#f0e8d8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:6px;font-size:clamp(17px,2.5vw,22px);font-weight:700;
+  font-family:'Cormorant Garamond',serif;
+  letter-spacing:3px;text-transform:uppercase;
+}
+.popup-sub{
+  text-align:center;font-size:11px;
+  color:#8ca8d8;letter-spacing:3px;
+  opacity:0.5;margin-bottom:20px;
+  text-transform:uppercase;
+}
+.popup-divider{
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(212,197,160,0.3),transparent);
+  margin-bottom:20px;
+}
+.close{
+  position:absolute;top:16px;right:20px;font-size:20px;
+  cursor:pointer;color:#8ca8d8;transition:0.2s;font-weight:300;
+  font-family:'DM Sans',sans-serif;
+}
+.close:hover{color:#d4c5a0;transform:scale(1.15);}
+.popup-content p{
+  font-size:clamp(12px,1.5vw,14px);line-height:2.1;
+  text-align:justify;color:#a8b8d0;
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(14px,1.6vw,16px);
+}
+
+@keyframes fadeDown{from{opacity:0;transform:translateY(-30px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .main-row{gap:16px;padding:14px 16px 40px;min-height:auto;}
+  .flip-card{width:165px;height:290px;}
+  .flip-card-card{width:260px;height:290px;}
+}
+@media(max-width:700px){
+  .main-row{flex-direction:column;gap:18px;padding:14px 12px 40px;min-height:auto;}
+  .flip-card{width:230px;height:310px;}
+  .flip-card-card{width:290px;height:270px;}
+}
+@media(max-width:480px){
+  .header{font-size:clamp(20px,7vw,32px);letter-spacing:3px;padding:20px 12px 4px;}
+  .tagline{font-size:9px;letter-spacing:3px;}
+  .flip-card{width:82vw;max-width:260px;height:330px;}
+  .flip-card-card{width:82vw;max-width:300px;height:260px;}
+  .msg-btn{width:82vw;max-width:270px;text-align:center;}
+  .main-row{gap:14px;padding:10px 10px 40px;}
+}
+@media(max-width:360px){
+  .flip-card{height:270px;}
+  .flip-card-card{height:240px;}
+}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-ring"></div>
+  <span id="typing"></span>
+</div>
+
+<div id="main">
+  <canvas id="canvas"></canvas>
+  <div class="header" id="name"></div>
+  <div class="tagline">Knowledge · Wisdom · Impact · Legacy</div>
+  <div class="deco-line"><span></span><i></i><span></span></div>
+
+  <div class="main-row">
+
+    <!-- IMAGE CARD -->
+    <div class="flip-card">
+      <div class="flip-inner">
+        <div class="flip-front">
+            <img src="images/UmaSundari.png" alt="Uma Sundari">
+          <div class="placeholder">
+            <span class="icon">🎓</span>
+            <span class="label">Uma Sundari</span>
+          </div>
+        </div>
+        <div class="flip-back">
+          <p>"A great teacher doesn't just fill minds — she opens them to possibilities they never imagined."</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFO CARD -->
+    <div class="flip-card-card">
+      <div class="flip-inner-card">
+        <div class="flip-front-card">
+          <p class="role">Assistant Professor</p>
+          <p class="quote">"Shaping minds, inspiring futures — one student at a time."</p>
+          <p class="batch">MSc Computer Science · 2024–2026</p>
+          <p class="hint">~ hover to explore ~</p>
+        </div>
+        <div class="flip-back-card">
+          <p>Teaching is not just a profession — it is a calling. Every lecture you deliver, every student you guide, every mind you open is a contribution to a future you may never fully see. But it is there, quietly growing. 🎓</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUTTON -->
+    <div class="btn-col">
+      <button class="msg-btn" onclick="showMsg(event)">View Message</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- POPUP -->
+<div id="popup" class="popup">
+  <div class="popup-content">
+    <span class="close" onclick="closePopup()">&times;</span>
+    <div class="popup-ornament">✦ ✦ ✦</div>
+    <p class="popup-title">A Message For You</p>
+    <p class="popup-sub">Uma Sundari · Assistant Professor</p>
+    <div class="popup-divider"></div>
+    <p>
+      Teaching is one of the most profound things a person can do. Not because it is easy — it rarely is — but because the impact of a single teacher can ripple through generations in ways that cannot be measured.
+
+      Every student who walks into your classroom carries a world of potential inside them. And you, Uma Sundari, have the rare gift of helping them see it.
+
+      There will be days when teaching feels thankless. Days when you wonder whether your efforts are making a difference. But know this — the seeds you plant in young minds do not bloom on your schedule. They bloom quietly, in their own time, long after they've left your classroom.
+
+      A student who discovers their passion because of your encouragement. A mind that opens because of a question you asked. A career that begins because you believed in someone before they believed in themselves.
+
+      That is your legacy. Invisible, but immeasurable.
+
+      So keep showing up with grace, knowledge, and patience. Keep inspiring, keep teaching, keep believing.
+
+      Because the world will always need teachers who care as deeply as you do. 💫
+    </p>
+  </div>
+</div>
+
+<script>
+/* LOADER */
+let text=["Preparing the lecture hall...","Loading profile...","Welcome, Uma Sundari 🎓"];
+let i=0,j=0;
+function typeLoader(){
+  let el=document.getElementById("typing");
+  if(j<text[i].length){el.innerHTML+=text[i][j];j++;setTimeout(typeLoader,48);}
+  else{setTimeout(()=>{el.innerHTML="";j=0;i++;if(i<text.length)typeLoader();else startMain();},950);}
+}
+typeLoader();
+
+function startMain(){
+  document.getElementById("loader").style.display="none";
+  document.getElementById("main").style.display="block";
+  typeName();
+  resizeCanvas();
+}
+
+/* NAME */
+let nameText="Uma Sundari",k=0;
+function typeName(){
+  if(k<nameText.length){document.getElementById("name").innerHTML+=nameText[k];k++;setTimeout(typeName,90);}
+}
+
+/* CANVAS */
+let canvas=document.getElementById("canvas");
+let ctx=canvas.getContext("2d");
+function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+resizeCanvas();
+window.addEventListener("resize",resizeCanvas);
+
+/* FLOATING PEARL PARTICLES */
+let pearls=[];
+for(let n=0;n<70;n++){
+  pearls.push({
+    x:Math.random()*window.innerWidth,
+    y:Math.random()*window.innerHeight,
+    r:Math.random()*2.5+0.5,
+    speedX:(Math.random()-0.5)*0.3,
+    speedY:-(Math.random()*0.4+0.1),
+    alpha:Math.random()*0.5+0.1,
+    hue:Math.random()>0.5?'140,168,216':'212,197,160'
+  });
+}
+
+/* CONSTELLATION LINES */
+function drawConstellations(){
+  for(let a=0;a<pearls.length;a++){
+    for(let b=a+1;b<pearls.length;b++){
+      let dx=pearls[a].x-pearls[b].x;
+      let dy=pearls[a].y-pearls[b].y;
+      let dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<120){
+        ctx.beginPath();
+        ctx.moveTo(pearls[a].x,pearls[a].y);
+        ctx.lineTo(pearls[b].x,pearls[b].y);
+        ctx.strokeStyle=`rgba(140,168,216,${0.06*(1-dist/120)})`;
+        ctx.lineWidth=0.5;
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+/* SHOOTING STARS */
+let stars=[];
+function addStar(){
+  stars.push({
+    x:Math.random()*canvas.width*0.7,
+    y:Math.random()*canvas.height*0.4,
+    len:Math.random()*130+60,
+    speed:Math.random()*7+5,
+    alpha:1,
+    angle:Math.PI/6
+  });
+}
+setInterval(addStar,3200);
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  /* constellations */
+  drawConstellations();
+
+  /* pearls */
+  pearls.forEach(p=>{
+    p.x+=p.speedX;
+    p.y+=p.speedY;
+    if(p.y<-10){p.y=canvas.height+10;p.x=Math.random()*canvas.width;}
+    if(p.x<-10||p.x>canvas.width+10) p.speedX*=-1;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${p.hue},${p.alpha})`;
+    ctx.fill();
+  });
+
+  /* shooting stars */
+  stars.forEach((s,idx)=>{
+    ctx.save();
+    ctx.translate(s.x,s.y);
+    ctx.rotate(s.angle);
+    let grad=ctx.createLinearGradient(0,0,s.len,0);
+    grad.addColorStop(0,'rgba(140,168,216,0)');
+    grad.addColorStop(1,`rgba(212,197,160,${s.alpha})`);
+    ctx.strokeStyle=grad;
+    ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(s.len,0);
+    ctx.stroke();
+    ctx.restore();
+    s.x+=s.speed*Math.cos(s.angle);
+    s.y+=s.speed*Math.sin(s.angle);
+    s.alpha-=0.016;
+    if(s.alpha<=0) stars.splice(idx,1);
+  });
+
+  requestAnimationFrame(draw);
+}
+draw();
+
+function showMsg(e){e.stopPropagation();document.getElementById("popup").style.display="flex";}
+function closePopup(){document.getElementById("popup").style.display="none";}
+</script>
+</body>
+</html>

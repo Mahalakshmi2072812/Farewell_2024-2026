@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,600;1,300&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;min-height:100vh;background:#0a0a0a;color:#e8e0d0;font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+
+/* ── LOADER ── */
+#loader{position:fixed;inset:0;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;z-index:999;}
+.clapper{width:64px;height:50px;position:relative;}
+.clapper-body{width:64px;height:38px;background:#1a1a1a;border:2px solid #e8e0d0;border-radius:3px;position:absolute;bottom:0;overflow:hidden;}
+.clapper-stripes{display:flex;height:100%;}
+.clapper-stripe{flex:1;background:#0a0a0a;}
+.clapper-stripe:nth-child(even){background:#e8e0d0;}
+.clapper-top{width:64px;height:18px;background:#1a1a1a;border:2px solid #e8e0d0;border-radius:2px;position:absolute;top:0;transform-origin:left center;animation:clapSnap 1.2s ease-in-out infinite;}
+.clapper-top-stripes{display:flex;height:100%;}
+.clapper-top-stripe{flex:1;background:#0a0a0a;}
+.clapper-top-stripe:nth-child(even){background:#e8e0d0;}
+@keyframes clapSnap{0%,100%{transform:rotate(-35deg);}50%{transform:rotate(0deg);}}
+#loader-txt{font-family:'Courier Prime',monospace;font-size:12px;letter-spacing:4px;color:#888;text-transform:uppercase;}
+
+/* ── CANVAS ── */
+canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+
+/* ── MAIN ── */
+#main{display:none;min-height:100vh;position:relative;z-index:1;}
+
+/* film grain overlay */
+#main::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+  background-size:180px 180px;
+  opacity:0.35;pointer-events:none;z-index:0;
+}
+
+/* ── FILM STRIP TOP ── */
+.filmstrip{width:100%;height:40px;background:#111;border-bottom:2px solid #222;display:flex;align-items:center;padding:0 8px;gap:6px;position:relative;z-index:2;overflow:hidden;}
+.hole{width:22px;height:26px;border-radius:3px;background:#0a0a0a;border:1px solid #2a2a2a;flex-shrink:0;}
+.strip-text{font-family:'Courier Prime',monospace;font-size:10px;color:#444;letter-spacing:3px;white-space:nowrap;margin:0 8px;}
+
+/* ── HEADER ── */
+.header-zone{text-align:center;padding:28px 20px 10px;position:relative;z-index:1;}
+.scene-label{font-family:'Courier Prime',monospace;font-size:11px;color:#555;letter-spacing:5px;text-transform:uppercase;margin-bottom:8px;}
+.main-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(36px,7vw,80px);
+  letter-spacing:6px;
+  line-height:1;
+  color:#e8e0d0;
+  text-transform:uppercase;
+  position:relative;display:inline-block;
+}
+.main-title .red{color:#c0392b;}
+.tagline{font-family:'Courier Prime',monospace;font-size:clamp(10px,1.3vw,12px);color:#555;letter-spacing:5px;text-transform:uppercase;margin-top:8px;font-style:italic;}
+.rule{width:60px;height:1px;background:#333;margin:14px auto;}
+
+/* ── MAIN ROW ── */
+.main-row{
+  display:flex;flex-direction:row;
+  align-items:center;justify-content:center;
+  flex-wrap:wrap;gap:28px;
+  padding:10px 24px 48px;
+  position:relative;z-index:1;
+}
+
+/* ── PHOTO CARD ── */
+.photo-wrap{
+  flex-shrink:0;
+  width:clamp(170px,18vw,220px);
+  position:relative;
+  animation:floatP 5s ease-in-out infinite;
+}
+@keyframes floatP{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.film-border{
+  width:100%;
+  background:#111;
+  border:1px solid #2a2a2a;
+  border-radius:2px;
+  padding:10px 8px;
+}
+.film-holes-top,.film-holes-bottom{display:flex;justify-content:space-around;margin:0 0 6px;}
+.film-holes-bottom{margin:6px 0 0;}
+.fhole{width:14px;height:10px;border-radius:2px;background:#0a0a0a;border:1px solid #333;}
+.photo-box{
+  width:100%;
+  aspect-ratio:3/4;
+  background:#1a1a1a;
+  border:1px solid #2a2a2a;
+  overflow:hidden;
+  position:relative;
+}
+.photo-box img{width:100%;height:100%;object-fit:cover;object-position:top;filter:contrast(1.05) brightness(0.92);}
+.photo-box::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,0.85) 100%);
+}
+.photo-caption{
+  position:absolute;bottom:8px;left:0;width:100%;text-align:center;z-index:2;
+  font-family:'Courier Prime',monospace;font-size:10px;color:#888;letter-spacing:2px;
+}
+.frame-num{font-family:'Courier Prime',monospace;font-size:10px;color:#333;letter-spacing:1px;text-align:right;margin-top:4px;}
+
+/* ── CLAPPERBOARD CARD ── */
+.clap-card{
+  flex-shrink:0;
+  width:clamp(250px,26vw,310px);
+  perspective:1200px;
+  animation:floatC 6s ease-in-out infinite;
+}
+@keyframes floatC{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.clap-card:hover{animation-play-state:paused;transform:translateY(0)!important;}
+.clap-inner{width:100%;transform-style:preserve-3d;transition:transform 0.85s cubic-bezier(0.4,0,0.2,1);}
+.clap-card:hover .clap-inner{transform:rotateY(180deg);}
+.clap-front,.clap-back{backface-visibility:hidden;border-radius:2px;}
+.clap-front{
+  background:#111;
+  border:1px solid #2a2a2a;
+  overflow:hidden;
+}
+/* clapperboard top stripe */
+.clap-top-stripe{
+  height:44px;
+  background:repeating-linear-gradient(90deg,#e8e0d0 0px,#e8e0d0 22px,#1a1a1a 22px,#1a1a1a 44px);
+  border-bottom:2px solid #2a2a2a;
+  display:flex;align-items:center;padding:0 12px;gap:10px;
+  position:relative;
+}
+.clap-top-stripe::after{
+  content:'';position:absolute;inset:0;
+  background:rgba(10,10,10,0.35);
+}
+.clap-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;z-index:1;}
+.cd-r{background:#c0392b;}
+.cd-y{background:#d4a017;}
+.cd-g{background:#27ae60;}
+.clap-body{padding:18px 16px 16px;}
+.clap-row{display:flex;margin-bottom:10px;border-bottom:1px solid #1e1e1e;padding-bottom:8px;}
+.clap-row:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.clap-key{font-family:'Courier Prime',monospace;font-size:10px;color:#444;letter-spacing:2px;text-transform:uppercase;width:70px;flex-shrink:0;padding-top:2px;}
+.clap-val{font-family:'Courier Prime',monospace;font-size:13px;color:#e8e0d0;line-height:1.5;}
+.clap-val.big{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#e8e0d0;}
+.clap-val.accent{color:#c0392b;}
+.clap-hint{font-family:'Courier Prime',monospace;font-size:10px;color:#333;letter-spacing:3px;text-align:center;margin-top:12px;animation:blink 2s step-end infinite;}
+@keyframes blink{0%,100%{opacity:0.3;}50%{opacity:1;}}
+
+.clap-back{
+  position:absolute;top:0;left:0;width:100%;
+  background:#0f0f0f;
+  border:1px solid #2a2a2a;
+  transform:rotateY(180deg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:28px 22px;gap:14px;text-align:center;
+}
+.back-heading{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;color:#c0392b;}
+.craft-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+.ctag{
+  font-family:'Courier Prime',monospace;font-size:11px;
+  color:#888;letter-spacing:1px;
+  border:1px solid #2a2a2a;padding:4px 10px;border-radius:1px;
+  background:#111;
+}
+.back-quote{font-family:'DM Sans',sans-serif;font-style:italic;font-size:13px;color:#666;line-height:1.8;}
+
+/* ── ROLE REEL ── */
+.reel-col{
+  display:flex;flex-direction:column;gap:10px;
+  flex-shrink:0;
+  animation:floatR 4.5s ease-in-out infinite;
+}
+@keyframes floatR{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+.reel-card{
+  width:clamp(130px,13vw,165px);
+  background:#111;
+  border:1px solid #1e1e1e;
+  border-left:2px solid #c0392b;
+  padding:12px 14px;
+  border-radius:1px;
+  transition:border-color 0.3s,background 0.3s;
+}
+.reel-card:hover{background:#161616;border-color:#e8433a;}
+.reel-icon{width:18px;height:12px;position:relative;margin-bottom:7px;}
+.reel-icon::before,.reel-icon::after{content:'';position:absolute;border-radius:50%;border:1.5px solid #c0392b;}
+.reel-icon::before{width:12px;height:12px;top:0;left:0;}
+.reel-icon::after{width:6px;height:6px;top:3px;left:3px;background:#c0392b;}
+.reel-val{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:#e8e0d0;}
+.reel-lbl{font-family:'Courier Prime',monospace;font-size:10px;color:#444;letter-spacing:2px;text-transform:uppercase;}
+
+/* ── BUTTON ── */
+.btn-zone{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;flex-shrink:0;}
+.action-btn{
+  font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:5px;
+  padding:14px 28px;
+  background:transparent;color:#e8e0d0;
+  border:1px solid #2a2a2a;
+  cursor:pointer;
+  position:relative;overflow:hidden;
+  transition:color 0.3s,border-color 0.3s;
+  border-radius:1px;
+}
+.action-btn::before{
+  content:'';position:absolute;
+  top:0;left:0;width:3px;height:100%;
+  background:#c0392b;transition:width 0.4s;
+}
+.action-btn:hover::before{width:100%;}
+.action-btn:hover{color:#0a0a0a;border-color:#c0392b;}
+.action-btn span{position:relative;z-index:1;}
+
+/* ── FILM STRIP BOTTOM ── */
+.filmstrip-bottom{width:100%;height:40px;background:#111;border-top:2px solid #222;display:flex;align-items:center;padding:0 8px;gap:6px;overflow:hidden;}
+
+/* ── POPUP ── */
+.popup-wrap{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.9);
+  z-index:1000;
+  padding:20px;
+  backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;
+}
+.popup-wrap.open{display:flex;}
+.popup-inner{
+  background:#0f0f0f;
+  border:1px solid #2a2a2a;
+  width:100%;max-width:520px;
+  max-height:88vh;overflow-y:auto;
+  border-radius:2px;
+  animation:slideUp 0.35s ease;
+  position:relative;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.popup-clap-bar{
+  height:36px;
+  background:repeating-linear-gradient(90deg,#e8e0d0 0px,#e8e0d0 18px,#1a1a1a 18px,#1a1a1a 36px);
+  border-bottom:2px solid #2a2a2a;
+  position:relative;
+  display:flex;align-items:center;padding:0 14px;
+}
+.popup-clap-bar::after{content:'';position:absolute;inset:0;background:rgba(10,10,10,0.4);}
+.popup-dots{display:flex;gap:6px;z-index:1;}
+.pd{width:10px;height:10px;border-radius:50%;}
+.pd-r{background:#c0392b;} .pd-y{background:#d4a017;} .pd-g{background:#27ae60;}
+.popup-close{position:absolute;right:14px;top:50%;transform:translateY(-50%);z-index:2;background:none;border:none;color:#666;font-size:16px;cursor:pointer;font-family:'Courier Prime',monospace;padding:4px 8px;}
+.popup-close:hover{color:#e8e0d0;}
+.popup-body{padding:28px 28px 32px;}
+.popup-scene{font-family:'Courier Prime',monospace;font-size:10px;color:#333;letter-spacing:4px;text-transform:uppercase;margin-bottom:4px;}
+.popup-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(20px,3vw,28px);letter-spacing:3px;color:#e8e0d0;margin-bottom:16px;}
+.popup-rule{height:1px;background:#1e1e1e;margin-bottom:20px;}
+.popup-text p{font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.9;color:#888;margin-bottom:12px;}
+.popup-text p span{color:#c0392b;font-style:italic;}
+.popup-sig{margin-top:20px;font-family:'Courier Prime',monospace;font-size:11px;color:#333;letter-spacing:2px;text-align:right;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){.main-row{gap:20px;padding:10px 16px 40px;}.reel-col{flex-direction:row;flex-wrap:wrap;justify-content:center;}.reel-card{width:140px;}}
+@media(max-width:700px){.main-row{flex-direction:column;gap:18px;padding:10px 14px 40px;}.photo-wrap{width:80vw;max-width:240px;}.clap-card{width:82vw;max-width:310px;}.reel-col{flex-direction:row;flex-wrap:wrap;justify-content:center;}.reel-card{width:140px;}.action-btn{width:82vw;max-width:280px;}}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="clapper">
+    <div class="clapper-top"><div class="clapper-top-stripes"><div class="clapper-top-stripe"></div><div class="clapper-top-stripe"></div><div class="clapper-top-stripe"></div><div class="clapper-top-stripe"></div><div class="clapper-top-stripe"></div><div class="clapper-top-stripe"></div></div></div>
+    <div class="clapper-body"><div class="clapper-stripes"><div class="clapper-stripe"></div><div class="clapper-stripe"></div><div class="clapper-stripe"></div><div class="clapper-stripe"></div><div class="clapper-stripe"></div><div class="clapper-stripe"></div></div></div>
+  </div>
+  <span id="loader-txt"></span>
+</div>
+
+<div id="main">
+  <canvas id="canvas"></canvas>
+
+  <div class="filmstrip" id="strip-top"></div>
+
+  <div class="header-zone">
+    <div class="scene-label">Scene 01 &nbsp;·&nbsp; Take 01 &nbsp;·&nbsp; Roll KK</div>
+    <div class="main-title" id="main-title"></div>
+    <div class="tagline">Director &nbsp;·&nbsp; Editor &nbsp;·&nbsp; Visual Storyteller</div>
+    <div class="rule"></div>
+  </div>
+
+  <div class="main-row">
+
+    <!-- PHOTO -->
+    <div class="photo-wrap">
+      <div class="film-border">
+        <div class="film-holes-top">
+          <div class="fhole"></div><div class="fhole"></div><div class="fhole"></div><div class="fhole"></div>
+        </div>
+        <div class="photo-box">
+          <img src="images/Krishnan.png" alt="Krishnan K" onerror="this.style.display='none'">
+          <div class="photo-caption">KRISHNAN K</div>
+        </div>
+        <div class="film-holes-bottom">
+          <div class="fhole"></div><div class="fhole"></div><div class="fhole"></div><div class="fhole"></div>
+        </div>
+        <div class="frame-num">KK-001 ▸</div>
+      </div>
+    </div>
+
+    <!-- CLAPPERBOARD FLIP CARD -->
+    <div class="clap-card" id="clapCard">
+      <div class="clap-inner" id="clapInner">
+
+        <div class="clap-front">
+          <div class="clap-top-stripe">
+            <div class="clap-dot cd-r"></div>
+            <div class="clap-dot cd-y"></div>
+            <div class="clap-dot cd-g"></div>
+          </div>
+          <div class="clap-body">
+            <div class="clap-row">
+              <div class="clap-key">PROD</div>
+              <div class="clap-val big">Krishnan K</div>
+            </div>
+            <div class="clap-row">
+              <div class="clap-key">ROLE</div>
+              <div class="clap-val accent">Director / Editor</div>
+            </div>
+            <div class="clap-row">
+              <div class="clap-key">PROG</div>
+              <div class="clap-val">MSc Media Studies<br>2024 – 2026</div>
+            </div>
+            <div class="clap-row">
+              <div class="clap-key">FOCUS</div>
+              <div class="clap-val">Film Direction<br>Post-Production</div>
+            </div>
+          </div>
+          <div class="clap-hint">▸ HOVER TO ROLL</div>
+        </div>
+
+        <div class="clap-back">
+          <div class="back-heading">Craft &amp; Tools</div>
+          <div class="craft-tags">
+            <span class="ctag">Direction</span>
+            <span class="ctag">Editing</span>
+            <span class="ctag">Cinematography</span>
+            <span class="ctag">Color Grading</span>
+            <span class="ctag">Sound Design</span>
+            <span class="ctag">Screenwriting</span>
+          </div>
+          <div class="back-quote">"Cinema is a mirror by which we often see ourselves. Every cut tells the truth the camera almost missed."</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- REEL STATS -->
+    <div class="reel-col">
+      <div class="reel-card">
+        <div class="reel-icon"></div>
+        <div class="reel-val">Vision</div>
+        <div class="reel-lbl">Core Craft</div>
+      </div>
+      <div class="reel-card">
+        <div class="reel-icon"></div>
+        <div class="reel-val">Rhythm</div>
+        <div class="reel-lbl">In Editing</div>
+      </div>
+      <div class="reel-card">
+        <div class="reel-icon"></div>
+        <div class="reel-val">Story</div>
+        <div class="reel-lbl">Always First</div>
+      </div>
+    </div>
+
+    <!-- BUTTON -->
+    <div class="btn-zone">
+      <button class="action-btn" onclick="openMsg()"><span>▸ PLAY MESSAGE</span></button>
+    </div>
+
+  </div>
+
+  <div class="filmstrip-bottom" id="strip-bot"></div>
+</div>
+
+<!-- POPUP -->
+<div class="popup-wrap" id="popup">
+  <div class="popup-inner">
+    <div class="popup-clap-bar">
+      <div class="popup-dots">
+        <div class="pd pd-r"></div><div class="pd pd-y"></div><div class="pd pd-g"></div>
+      </div>
+      <button class="popup-close" onclick="closeMsg()">✕ CUT</button>
+    </div>
+    <div class="popup-body">
+      <div class="popup-scene">INT. FUTURE — DAY</div>
+      <div class="popup-title">The Director's Cut</div>
+      <div class="popup-rule"></div>
+      <div class="popup-text">
+        <p>Every great director starts with the same thing — <span>an obsession with how a story feels</span>, not just how it looks. Krishnan, that obsession is your superpower.</p>
+        <p>You understand something most people take years to learn: editing is not what you add, it's <span>what you dare to remove</span>. The cut between two frames holds more emotion than a hundred words of dialogue.</p>
+        <p>The set will be chaotic. The timeline will be cluttered. Deadlines will breathe down your neck. In those moments, remember — <span>the best directors stay calm because they've already seen the film in their mind</span>. Trust your vision.</p>
+        <p>Study the masters. Watch Kubrick's patience, Nolan's structure, Mani Ratnam's poetry in motion. Then <span>forget all of it and find your own voice</span>. Because the world doesn't need another imitation — it needs Krishnan K's perspective on a frame.</p>
+        <p>Go make something the audience can't look away from. The camera is rolling. <span>Action.</span></p>
+      </div>
+      <div class="popup-sig">// FADE TO BLACK &nbsp;·&nbsp; KK-001</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const loaderLines=["Loading film reel...","Calibrating the lens...","Action — Krishnan K!"];
+let li=0,lj=0;
+function typeLoader(){
+  const el=document.getElementById("loader-txt");
+  if(lj<loaderLines[li].length){el.textContent+=loaderLines[li][lj];lj++;setTimeout(typeLoader,48);}
+  else{setTimeout(()=>{el.textContent="";lj=0;li++;if(li<loaderLines.length)typeLoader();else boot();},1000);}
+}
+typeLoader();
+
+function boot(){
+  document.getElementById("loader").style.display="none";
+  document.getElementById("main").style.display="block";
+  buildStrips();
+  typeName();
+  initCanvas();
+  drawLoop();
+
+  const card=document.getElementById("clapCard");
+  const inner=document.getElementById("clapInner");
+  card.addEventListener("mouseenter",()=>{
+    card.style.animationPlayState="paused";
+    card.style.transform="translateY(0)";
+    inner.style.transform="rotateY(180deg)";
+  });
+  card.addEventListener("mouseleave",()=>{
+    inner.style.transform="rotateY(0deg)";
+    setTimeout(()=>{
+      card.style.transform="";
+      card.style.animationPlayState="running";
+    },870);
+  });
+}
+
+function buildStrips(){
+  ["strip-top","strip-bot"].forEach(id=>{
+    const el=document.getElementById(id);
+    const count=Math.ceil(window.innerWidth/40)+2;
+    for(let i=0;i<count;i++){
+      const h=document.createElement("div");h.className="hole";el.appendChild(h);
+    }
+    const t=document.createElement("div");t.className="strip-text";
+    t.textContent="KRISHNAN K · DIRECTOR · EDITOR · MSc MEDIA · 2024-2026 · ";
+    el.appendChild(t);
+  });
+}
+
+const fullName="KRISHNAN K";let ni=0;
+function typeName(){
+  const el=document.getElementById("main-title");
+  if(ni<fullName.length){
+    const c=fullName[ni];
+    const span=document.createElement("span");
+    if(c==="K"&&(ni===0||ni===8))span.className="red";
+    span.textContent=c;
+    el.appendChild(span);
+    ni++;setTimeout(typeName,90);
+  }
+}
+
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+let W,H,particles=[];
+
+function initCanvas(){
+  W=canvas.width=window.innerWidth;
+  H=canvas.height=window.innerHeight;
+  particles=[];
+  for(let i=0;i<60;i++){
+    particles.push({
+      x:Math.random()*W,y:Math.random()*H,
+      w:Math.random()*40+10,h:1,
+      vx:(Math.random()-0.5)*0.6,
+      vy:(Math.random()-0.1)*0.15,
+      a:Math.random()*0.4+0.1,
+      da:Math.random()*0.003+0.001,
+      type:Math.floor(Math.random()*3)
+    });
+  }
+}
+window.addEventListener("resize",initCanvas);
+
+function drawLoop(){
+  ctx.clearRect(0,0,W,H);
+  particles.forEach(p=>{
+    p.a+=p.da;if(p.a>0.5||p.a<0.05)p.da*=-1;
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<-100)p.x=W+50;if(p.x>W+100)p.x=-50;
+    if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+    ctx.save();ctx.globalAlpha=p.a;
+    if(p.type===0){
+      ctx.fillStyle="#e8e0d0";
+      ctx.fillRect(p.x,p.y,p.w,p.h);
+    } else if(p.type===1){
+      ctx.fillStyle="#c0392b";
+      ctx.beginPath();ctx.arc(p.x,p.y,1.2,0,Math.PI*2);ctx.fill();
+    } else {
+      ctx.fillStyle="#333";
+      ctx.fillRect(p.x,p.y,p.w*0.4,p.h*2);
+    }
+    ctx.restore();
+  });
+  requestAnimationFrame(drawLoop);
+}
+
+function openMsg(){document.getElementById("popup").classList.add("open");}
+function closeMsg(){document.getElementById("popup").classList.remove("open");}
+document.getElementById("popup").addEventListener("click",function(e){if(e.target===this)closeMsg();});
+</script>
+</body>
+</html>

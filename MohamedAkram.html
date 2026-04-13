@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:ital,wght@0,300;0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;min-height:100vh;overflow-x:hidden;background:#050e05;color:#e8f5e8;font-family:'Archivo',sans-serif;}
+
+#loader{position:fixed;inset:0;background:#050e05;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;z-index:999;}
+.ball-wrap{position:relative;width:60px;height:60px;}
+.loader-ball{width:60px;height:60px;border-radius:50%;background:#cc2200;border:3px solid #ff3311;animation:spinBall 0.9s linear infinite;position:relative;overflow:hidden;}
+.loader-ball::before{content:'';position:absolute;top:50%;left:-4px;right:-4px;height:2px;background:rgba(255,255,255,0.25);transform:rotate(-25deg);}
+.loader-ball::after{content:'';position:absolute;top:50%;left:-4px;right:-4px;height:2px;background:rgba(255,255,255,0.15);margin-top:8px;transform:rotate(-25deg);}
+@keyframes spinBall{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+#loader-txt{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:4px;color:#2d7a2d;text-transform:uppercase;}
+
+canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+
+#main{display:none;min-height:100vh;position:relative;z-index:1;
+  background:radial-gradient(ellipse at 20% 40%,rgba(34,100,34,0.18) 0%,transparent 55%),
+             radial-gradient(ellipse at 80% 70%,rgba(15,60,15,0.2) 0%,transparent 55%),
+             #050e05;}
+
+/* PITCH LINES background */
+#main::before{content:'';position:fixed;inset:0;
+  background:repeating-linear-gradient(90deg,transparent,transparent 79px,rgba(34,100,34,0.06) 79px,rgba(34,100,34,0.06) 80px);
+  pointer-events:none;z-index:0;}
+
+/* SCOREBOARD HEADER */
+.scoreboard{
+  position:relative;z-index:2;
+  background:#0a1a0a;
+  border-bottom:3px solid #1a4a1a;
+  padding:0;
+  overflow:hidden;
+}
+.score-ticker{
+  background:#0d2a0d;
+  border-bottom:1px solid #1a4a1a;
+  padding:6px 0;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.ticker-inner{
+  display:inline-block;
+  animation:tickerScroll 18s linear infinite;
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  color:#2d9a2d;
+  letter-spacing:2px;
+}
+@keyframes tickerScroll{0%{transform:translateX(100vw);}100%{transform:translateX(-100%);}}\
+
+.score-main{
+  display:flex;align-items:center;justify-content:center;
+  padding:16px 24px 14px;gap:32px;flex-wrap:wrap;
+}
+.score-block{text-align:center;}
+.score-num{font-family:'Archivo Black',sans-serif;font-size:clamp(28px,5vw,52px);color:#e8f5e8;line-height:1;letter-spacing:2px;}
+.score-num .accent{color:#2db82d;}
+.score-lbl{font-family:'Space Mono',monospace;font-size:10px;color:#2d7a2d;letter-spacing:3px;text-transform:uppercase;margin-top:3px;}
+.score-divider{width:1px;height:50px;background:#1a4a1a;}
+
+.name-strip{
+  text-align:center;
+  padding:0 20px 14px;
+  position:relative;z-index:2;
+}
+.name-main{
+  font-family:'Archivo Black',sans-serif;
+  font-size:clamp(32px,6.5vw,72px);
+  letter-spacing:4px;
+  text-transform:uppercase;
+  color:#e8f5e8;
+  line-height:1;
+  position:relative;display:inline-block;
+}
+.name-main .grn{color:#2db82d;}
+.sub-roles{
+  display:flex;align-items:center;justify-content:center;gap:0;
+  margin-top:6px;flex-wrap:wrap;
+}
+.role-pill{
+  font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;
+  color:#2d7a2d;text-transform:uppercase;padding:0 14px;
+}
+.role-sep{color:#1a4a1a;font-size:14px;}
+
+/* MAIN ROW */
+.main-row{
+  display:flex;flex-direction:row;align-items:center;justify-content:center;
+  flex-wrap:wrap;gap:24px;padding:16px 24px 48px;
+  position:relative;z-index:2;
+}
+
+/* PHOTO 1 */
+.photo-card{
+  width:clamp(160px,16vw,200px);
+  height:clamp(280px,30vw,360px);
+  flex-shrink:0;
+  position:relative;
+  animation:floatA 5s ease-in-out infinite;
+}
+@keyframes floatA{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+.photo-frame{
+  width:100%;height:100%;
+  background:#0a1a0a;
+  border:1px solid #1a4a1a;
+  border-radius:4px;
+  overflow:hidden;
+  position:relative;
+}
+.photo-frame img{width:100%;height:100%;object-fit:cover;object-position:top;filter:contrast(1.05);}
+.photo-frame::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(transparent 55%,rgba(5,14,5,0.9) 100%);
+}
+.photo-badge{
+  position:absolute;bottom:10px;left:0;width:100%;z-index:2;text-align:center;
+  font-family:'Space Mono',monospace;font-size:10px;color:#2db82d;letter-spacing:2px;text-transform:uppercase;
+}
+.corner-bracket{position:absolute;width:14px;height:14px;border-color:#2d7a2d;border-style:solid;opacity:0.7;}
+.cb-tl{top:-1px;left:-1px;border-width:2px 0 0 2px;}
+.cb-tr{top:-1px;right:-1px;border-width:2px 2px 0 0;}
+.cb-bl{bottom:-1px;left:-1px;border-width:0 0 2px 2px;}
+.cb-br{bottom:-1px;right:-1px;border-width:0 2px 2px 0;}
+
+/* PHOTO 2 */
+.photo-card2{
+  width:clamp(160px,16vw,200px);
+  height:clamp(280px,30vw,360px);
+  flex-shrink:0;
+  position:relative;
+  animation:floatB 6s ease-in-out infinite;
+}
+@keyframes floatB{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);}}
+
+/* FLIP INFO CARD — jersey style */
+.jersey-card{
+  width:clamp(240px,24vw,290px);
+  height:clamp(280px,30vw,360px);
+  flex-shrink:0;
+  perspective:1200px;
+  animation:floatC 5.5s ease-in-out infinite;
+}
+@keyframes floatC{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.jersey-card:hover{animation-play-state:paused;transform:translateY(0)!important;}
+.jersey-inner{width:100%;height:100%;transform-style:preserve-3d;transition:transform 0.85s cubic-bezier(0.4,0,0.2,1);}
+.jersey-card:hover .jersey-inner{transform:rotateY(180deg);}
+.jersey-front,.jersey-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:4px;}
+
+.jersey-front{
+  background:#0a1a0a;
+  border:1px solid #1a4a1a;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+}
+/* Jersey collar */
+.jersey-top{
+  background:#0d2a0d;
+  padding:14px 16px 10px;
+  border-bottom:2px solid #2d7a2d;
+  text-align:center;
+  position:relative;
+}
+.jersey-name-tag{
+  font-family:'Archivo Black',sans-serif;
+  font-size:clamp(13px,1.8vw,17px);
+  letter-spacing:3px;
+  color:#e8f5e8;text-transform:uppercase;
+}
+.jersey-number{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  font-family:'Archivo Black',sans-serif;
+  font-size:22px;color:#2d9a2d;opacity:0.8;
+}
+.jersey-body{flex:1;padding:16px 14px;display:flex;flex-direction:column;gap:10px;}
+.jersey-row{
+  display:flex;justify-content:space-between;align-items:baseline;
+  border-bottom:1px solid #0d2a0d;padding-bottom:8px;
+}
+.jersey-row:last-of-type{border-bottom:none;}
+.j-key{font-family:'Space Mono',monospace;font-size:10px;color:#2d5a2d;letter-spacing:2px;text-transform:uppercase;}
+.j-val{font-family:'Archivo',sans-serif;font-size:13px;color:#a8d8a8;font-weight:600;}
+.j-val.big{font-family:'Archivo Black',sans-serif;font-size:16px;color:#2db82d;}
+.jersey-hint{margin-top:auto;font-family:'Space Mono',monospace;font-size:10px;color:#1a5a1a;letter-spacing:2px;text-align:center;animation:blinkHint 2s step-end infinite;}
+@keyframes blinkHint{0%,100%{opacity:0.3;}50%{opacity:1;}}
+
+.jersey-back{
+  background:#050e05;border:1px solid #1a4a1a;
+  transform:rotateY(180deg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;gap:14px;text-align:center;
+}
+.back-num{font-family:'Archivo Black',sans-serif;font-size:56px;color:#1a4a1a;line-height:1;}
+.back-title{font-family:'Space Mono',monospace;font-size:11px;color:#2d7a2d;letter-spacing:4px;text-transform:uppercase;}
+.skill-tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
+.stag{font-family:'Space Mono',monospace;font-size:10px;color:#2d7a2d;border:1px solid #1a4a1a;padding:3px 8px;border-radius:2px;background:#0a1a0a;letter-spacing:1px;}
+.back-q{font-family:'Archivo',sans-serif;font-style:italic;font-size:12px;color:#4a8a4a;line-height:1.8;}
+
+/* STAT CARDS */
+.stat-col{display:flex;flex-direction:column;gap:10px;flex-shrink:0;animation:floatD 4.5s ease-in-out infinite;}
+@keyframes floatD{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+.stat-card{
+  width:clamp(130px,13vw,160px);
+  background:#0a1a0a;
+  border:1px solid #0f300f;
+  border-left:2px solid #2db82d;
+  padding:11px 13px;
+  border-radius:2px;
+  transition:background 0.3s,border-color 0.3s;
+  position:relative;overflow:hidden;
+}
+.stat-card::before{content:'';position:absolute;top:0;right:0;width:30px;height:30px;background:radial-gradient(circle,rgba(45,184,45,0.08),transparent);}
+.stat-card:hover{background:#0d2a0d;border-color:#3dcc3d;}
+.s-icon{margin-bottom:6px;}
+.s-icon svg{width:16px;height:16px;}
+.s-val{font-family:'Archivo Black',sans-serif;font-size:17px;color:#e8f5e8;letter-spacing:1px;}
+.s-lbl{font-family:'Space Mono',monospace;font-size:10px;color:#2d5a2d;letter-spacing:2px;text-transform:uppercase;}
+
+/* BUTTON */
+.btn-zone{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;gap:12px;}
+.play-btn{
+  font-family:'Archivo Black',sans-serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;
+  padding:15px 26px;
+  background:#0d2a0d;
+  color:#2db82d;
+  border:1px solid #2d7a2d;
+  cursor:pointer;border-radius:2px;
+  position:relative;overflow:hidden;
+  transition:color 0.3s,background 0.3s,border-color 0.3s;
+}
+.play-btn::after{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg,transparent,transparent 9px,rgba(45,184,45,0.04) 9px,rgba(45,184,45,0.04) 10px);
+}
+.play-btn:hover{background:#2db82d;color:#050e05;border-color:#2db82d;}
+
+/* POPUP */
+.popup-wrap{
+  display:none;position:fixed;inset:0;
+  background:rgba(5,14,5,0.92);backdrop-filter:blur(10px);
+  z-index:1000;padding:20px;align-items:center;justify-content:center;
+}
+.popup-wrap.open{display:flex;}
+.popup-box{
+  background:#080f08;border:1px solid #1a4a1a;
+  border-radius:4px;width:100%;max-width:520px;
+  max-height:88vh;overflow-y:auto;
+  animation:popIn 0.35s ease;position:relative;
+}
+@keyframes popIn{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
+
+.popup-score-bar{
+  background:#0d2a0d;border-bottom:2px solid #1a4a1a;
+  padding:12px 18px;display:flex;align-items:center;justify-content:space-between;
+}
+.popup-title-txt{font-family:'Archivo Black',sans-serif;font-size:14px;letter-spacing:3px;color:#2db82d;text-transform:uppercase;}
+.popup-close-btn{background:none;border:none;color:#2d5a2d;font-family:'Space Mono',monospace;font-size:13px;cursor:pointer;letter-spacing:1px;padding:4px 8px;}
+.popup-close-btn:hover{color:#2db82d;}
+.popup-body{padding:28px;}
+.popup-over{font-family:'Space Mono',monospace;font-size:10px;color:#2d5a2d;letter-spacing:4px;margin-bottom:6px;}
+.popup-heading{font-family:'Archivo Black',sans-serif;font-size:clamp(18px,3vw,26px);color:#e8f5e8;letter-spacing:2px;margin-bottom:14px;}
+.popup-divider{height:1px;background:#0f2a0f;margin-bottom:20px;}
+.popup-text p{font-family:'Archivo',sans-serif;font-size:14px;line-height:1.95;color:#6aaa6a;margin-bottom:12px;}
+.popup-text p strong{color:#a8d8a8;font-weight:600;}
+.popup-sig{margin-top:20px;font-family:'Space Mono',monospace;font-size:10px;color:#2d5a2d;letter-spacing:3px;text-align:right;}
+
+/* LIVE DOT */
+.live-pip{display:inline-block;width:6px;height:6px;background:#2db82d;border-radius:50%;margin-right:6px;animation:livePulse 1.2s ease-in-out infinite;}
+@keyframes livePulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.3;transform:scale(0.7);}}
+
+@media(max-width:900px){.main-row{gap:18px;padding:12px 16px 40px;}.stat-col{flex-direction:row;flex-wrap:wrap;justify-content:center;}.stat-card{width:140px;}}
+@media(max-width:720px){.main-row{flex-direction:column;gap:16px;padding:10px 14px 40px;}.photo-card,.photo-card2{width:82vw;max-width:250px;height:320px;}.jersey-card{width:82vw;max-width:300px;}.stat-col{flex-direction:row;flex-wrap:wrap;justify-content:center;}.stat-card{width:140px;}.play-btn{width:82vw;max-width:280px;text-align:center;}.score-main{gap:16px;}}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="ball-wrap"><div class="loader-ball"></div></div>
+  <span id="loader-txt"></span>
+</div>
+
+<div id="main">
+  <canvas id="canvas"></canvas>
+
+  <!-- SCOREBOARD HEADER -->
+  <div class="scoreboard">
+    <div class="score-ticker">
+      <span class="ticker-inner">AKRAM XI &nbsp;·&nbsp; LIVE MATCH &nbsp;·&nbsp; BUSINESS VENTURES ON THE RISE &nbsp;·&nbsp; CREASE: OCCUPIED &nbsp;·&nbsp; NEXT DELIVERY: UNSTOPPABLE &nbsp;·&nbsp; AKRAM XI &nbsp;·&nbsp; LIVE MATCH &nbsp;·&nbsp; BUSINESS VENTURES ON THE RISE &nbsp;·&nbsp;</span>
+    </div>
+    <div class="score-main">
+      <div class="score-block">
+        <div class="score-num"><span id="runs-counter">0</span></div>
+        <div class="score-lbl"><span class="live-pip"></span>Runs scored</div>
+      </div>
+      <div class="score-divider"></div>
+      <div class="score-block">
+        <div class="score-num"><span class="accent" id="name-heading"></span></div>
+        <div class="score-lbl">At the crease</div>
+      </div>
+      <div class="score-divider"></div>
+      <div class="score-block">
+        <div class="score-num">NOT<span class="accent"> OUT</span></div>
+        <div class="score-lbl">Status</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="name-strip">
+    <div class="sub-roles">
+      <span class="role-pill">Cricketer</span>
+      <span class="role-sep">·</span>
+      <span class="role-pill">Business Mind</span>
+      <span class="role-sep">·</span>
+      <span class="role-pill">Match Winner</span>
+    </div>
+  </div>
+
+  <div class="main-row">
+
+    <!-- PHOTO 1 -->
+    <div class="photo-card">
+      <div class="corner-bracket cb-tl"></div>
+      <div class="corner-bracket cb-tr"></div>
+      <div class="corner-bracket cb-bl"></div>
+      <div class="corner-bracket cb-br"></div>
+      <div class="photo-frame">
+        <img src="images/MohamedAkram.png" alt="Mohamed Akram" onerror="this.style.display='none'">
+        <div class="photo-badge">Akram · Bat</div>
+      </div>
+    </div>
+
+    <!-- JERSEY FLIP CARD -->
+    <div class="jersey-card" id="jerseyCard">
+      <div class="jersey-inner" id="jerseyInner">
+        <div class="jersey-front">
+          <div class="jersey-top">
+            <div class="jersey-name-tag">M. Akram</div>
+            <div class="jersey-number">07</div>
+          </div>
+          <div class="jersey-body">
+            <div class="jersey-row">
+              <span class="j-key">Role</span>
+              <span class="j-val big">Cricketer</span>
+            </div>
+            <div class="jersey-row">
+              <span class="j-key">Venture</span>
+              <span class="j-val">Business</span>
+            </div>
+            <div class="jersey-row">
+              <span class="j-key">Program</span>
+              <span class="j-val">MSc CS 24–26</span>
+            </div>
+            <div class="jersey-row">
+              <span class="j-key">Style</span>
+              <span class="j-val">Bold · Strategic</span>
+            </div>
+            <div class="jersey-hint">HOVER TO FLIP ▸</div>
+          </div>
+        </div>
+        <div class="jersey-back">
+          <div class="back-num">07</div>
+          <div class="back-title">Skills & Strengths</div>
+          <div class="skill-tags">
+            <span class="stag">Batting</span>
+            <span class="stag">Strategy</span>
+            <span class="stag">Leadership</span>
+            <span class="stag">Ventures</span>
+            <span class="stag">Team Play</span>
+            <span class="stag">Execution</span>
+          </div>
+          <div class="back-q">"On the pitch or in the boardroom — he reads the game before it's played."</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHOTO 2 -->
+    <div class="photo-card2">
+      <div class="corner-bracket cb-tl"></div>
+      <div class="corner-bracket cb-tr"></div>
+      <div class="corner-bracket cb-bl"></div>
+      <div class="corner-bracket cb-br"></div>
+      <div class="photo-frame" style="border-radius:4px;width:100%;height:100%;background:#0a1a0a;border:1px solid #1a4a1a;overflow:hidden;position:relative;">
+        <img src="images/MohamedAkram2.png" alt="Mohamed Akram batting" style="width:100%;height:100%;object-fit:cover;object-position:top;filter:contrast(1.05);" onerror="this.style.display='none'">
+        <div class="photo-badge" style="position:absolute;bottom:10px;left:0;width:100%;z-index:2;text-align:center;font-family:'Space Mono',monospace;font-size:10px;color:#2db82d;letter-spacing:2px;">Akram · Business</div>
+        <div style="position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(5,14,5,0.9) 100%);"></div>
+      </div>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stat-col">
+      <div class="stat-card">
+        <div class="s-icon">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#2db82d" stroke-width="1.5"/><path d="M5 8l2 2 4-4" stroke="#2db82d" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="s-val">6s &amp; 4s</div>
+        <div class="s-lbl">Boundary King</div>
+      </div>
+      <div class="stat-card">
+        <div class="s-icon">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="10" width="12" height="4" rx="1" stroke="#2db82d" stroke-width="1.5"/><path d="M8 2v8M5 5l3-3 3 3" stroke="#2db82d" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="s-val">Growth</div>
+        <div class="s-lbl">Biz Mindset</div>
+      </div>
+      <div class="stat-card">
+        <div class="s-icon">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 2L9.8 6.6H14.5L10.6 9.3L12 14L8 11.3L4 14L5.4 9.3L1.5 6.6H6.2L8 2Z" stroke="#2db82d" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="s-val">Captain</div>
+        <div class="s-lbl">Leadership</div>
+      </div>
+    </div>
+
+    <!-- BUTTON -->
+    <div class="btn-zone">
+      <button class="play-btn" onclick="openMsg()">VIEW MESSAGE</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- POPUP -->
+<div class="popup-wrap" id="popup">
+  <div class="popup-box">
+    <div class="popup-score-bar">
+      <div class="popup-title-txt"><span class="live-pip"></span>Playing XI — Message</div>
+      <button class="popup-close-btn" onclick="closeMsg()">CLOSE ✕</button>
+    </div>
+    <div class="popup-body">
+      <div class="popup-over">Over 1 · Ball 1 · Crease Occupied</div>
+      <div class="popup-heading">The Innings of Your Life</div>
+      <div class="popup-divider"></div>
+      <div class="popup-text">
+        <p>Every match begins with a toss — <strong>luck plays a role, but preparation decides everything after that.</strong> You already know this, Akram.</p>
+        <p>On the pitch, you read the bowler before the ball is bowled. In business, you read the market before the move is made. That same instinct — <strong>that split-second decision between defence and attack</strong> — is what separates good players from great ones.</p>
+        <p>Your cover drive has timing. Your business thinking has vision. <strong>Both are rare. Both are yours.</strong></p>
+        <p>There will be innings where you're on the back foot — prices crash, pitches are difficult, partnerships crack. When that happens, play late. <strong>Absorb the pressure. Then unleash.</strong></p>
+        <p>The best business deals, like the best cricket knocks, are built ball by ball. No slog from ball one. <strong>Watch it. Read it. Then hit it clean.</strong></p>
+        <p>You're not just a cricketer who studies business. You're an Akram — and <strong>that combination is a rare playing XI</strong> that most people never get to field.</p>
+        <p>Keep your stance wide. Keep your mind wider. <strong>The best innings is the next one.</strong></p>
+      </div>
+      <div class="popup-sig">// END OF OVER · AKRAM 07 · NOT OUT</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const loaderLines=["Toss happening...","Opening the innings...","Welcome, Akram!"];
+let li=0,lj=0;
+function typeLoader(){
+  const el=document.getElementById("loader-txt");
+  if(lj<loaderLines[li].length){el.textContent+=loaderLines[li][lj];lj++;setTimeout(typeLoader,50);}
+  else{setTimeout(()=>{el.textContent="";lj=0;li++;if(li<loaderLines.length)typeLoader();else boot();},950);}
+}
+typeLoader();
+
+function boot(){
+  document.getElementById("loader").style.display="none";
+  document.getElementById("main").style.display="block";
+  typeName();
+  startRunCounter();
+  initCanvas();
+  drawLoop();
+
+  const card=document.getElementById("jerseyCard");
+  const inner=document.getElementById("jerseyInner");
+  card.addEventListener("mouseenter",()=>{
+    card.style.animationPlayState="paused";
+    card.style.transform="translateY(0)";
+    inner.style.transform="rotateY(180deg)";
+  });
+  card.addEventListener("mouseleave",()=>{
+    inner.style.transform="rotateY(0deg)";
+    setTimeout(()=>{card.style.transform="";card.style.animationPlayState="running";},880);
+  });
+}
+
+const fullName="AKRAM";let ni=0;
+function typeName(){
+  const el=document.getElementById("name-heading");
+  if(ni<fullName.length){el.textContent+=fullName[ni];ni++;setTimeout(typeName,110);}
+}
+
+let runs=0;
+function startRunCounter(){
+  setInterval(()=>{
+    const add=[0,1,1,1,2,2,4,4,6][Math.floor(Math.random()*9)];
+    runs+=add;
+    const el=document.getElementById("runs-counter");
+    if(el)el.textContent=runs;
+  },800);
+}
+
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+let W,H,particles=[];
+
+function initCanvas(){
+  W=canvas.width=window.innerWidth;
+  H=canvas.height=window.innerHeight;
+  particles=[];
+  for(let i=0;i<100;i++){
+    const type=Math.random();
+    particles.push({
+      x:Math.random()*W,y:Math.random()*H,
+      vx:(Math.random()-0.5)*0.5,vy:(Math.random()-0.5)*0.3,
+      a:Math.random()*0.5+0.1,da:Math.random()*0.004+0.001,
+      r:Math.random()*1.8+0.4,
+      type: type<0.3 ? 'ball' : type<0.6 ? 'spark' : 'dot',
+      rot:Math.random()*Math.PI*2,rotV:(Math.random()-0.5)*0.02
+    });
+  }
+}
+window.addEventListener("resize",initCanvas);
+
+function drawLoop(){
+  ctx.clearRect(0,0,W,H);
+  particles.forEach(p=>{
+    p.a+=p.da;if(p.a>0.55||p.a<0.05)p.da*=-1;
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=W;if(p.x>W)p.x=0;
+    if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+    ctx.save();ctx.globalAlpha=p.a;
+    if(p.type==='ball'){
+      p.rot+=p.rotV;
+      ctx.translate(p.x,p.y);ctx.rotate(p.rot);
+      ctx.beginPath();ctx.arc(0,0,p.r*2,0,Math.PI*2);
+      ctx.fillStyle="#cc2200";ctx.fill();
+      ctx.beginPath();ctx.moveTo(-p.r*2,0);ctx.lineTo(p.r*2,0);
+      ctx.strokeStyle="rgba(255,100,80,0.4)";ctx.lineWidth=0.5;ctx.stroke();
+    } else if(p.type==='spark'){
+      ctx.fillStyle="#2db82d";
+      ctx.fillRect(p.x-p.r*8,p.y-p.r*0.3,p.r*16,p.r*0.6);
+    } else {
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle="#1a5a1a";ctx.fill();
+    }
+    ctx.restore();
+  });
+  requestAnimationFrame(drawLoop);
+}
+
+function openMsg(){document.getElementById("popup").classList.add("open");}
+function closeMsg(){document.getElementById("popup").classList.remove("open");}
+document.getElementById("popup").addEventListener("click",function(e){if(e.target===this)closeMsg();});
+</script>
+</body>
+</html>
