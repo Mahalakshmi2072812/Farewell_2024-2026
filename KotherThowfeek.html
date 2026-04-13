@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&family=Space+Grotesk:wght@300;400;700&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;min-height:100vh;background:#04080f;color:#e8f0ff;font-family:'Space Grotesk',sans-serif;overflow-x:hidden;}
+
+#loader{position:fixed;inset:0;background:#04080f;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;z-index:999;}
+.vault-door{width:72px;height:72px;border-radius:50%;border:3px solid #112244;position:relative;display:flex;align-items:center;justify-content:center;}
+.vault-spin{position:absolute;inset:0;border-radius:50%;border:3px solid transparent;border-top:3px solid #2255cc;border-right:3px solid #4488ff;animation:vaultSpin 1.2s ease-in-out infinite;}
+@keyframes vaultSpin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+.vault-inner{width:36px;height:36px;border-radius:50%;border:2px solid #1a3366;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-weight:900;font-size:13px;color:#2255cc;letter-spacing:1px;}
+#loader-txt{font-family:'Space Mono',monospace;font-size:11px;color:#1a3366;letter-spacing:4px;}
+
+canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+
+#main{display:none;min-height:100vh;position:relative;z-index:1;}
+
+/* DEEP SPACE BG */
+#main::before{content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse at 20% 20%,rgba(34,85,204,0.12) 0%,transparent 45%),
+    radial-gradient(ellipse at 80% 80%,rgba(0,180,255,0.07) 0%,transparent 45%),
+    radial-gradient(ellipse at 50% 50%,rgba(15,30,70,0.5) 0%,transparent 70%),
+    #04080f;
+  pointer-events:none;z-index:0;}
+
+/* GLASS GRID */
+#main::after{content:'';position:fixed;inset:0;
+  background:
+    repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(34,85,204,0.04) 59px,rgba(34,85,204,0.04) 60px),
+    repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(34,85,204,0.04) 59px,rgba(34,85,204,0.04) 60px);
+  pointer-events:none;z-index:0;}
+
+/* TOP STRIP */
+.top-strip{position:relative;z-index:2;background:rgba(4,8,15,0.9);border-bottom:1px solid rgba(34,85,204,0.3);padding:10px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;backdrop-filter:blur(10px);}
+.ts-id{font-family:'Space Mono',monospace;font-size:10px;color:#1a3366;letter-spacing:3px;}
+.ts-chips{display:flex;gap:10px;flex-wrap:wrap;}
+.chip{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;padding:3px 10px;border-radius:40px;background:rgba(34,85,204,0.08);border:1px solid rgba(34,85,204,0.25);color:#2255cc;}
+.chip.on{color:#4af;border-color:rgba(68,170,255,0.5);background:rgba(68,170,255,0.06);}
+
+/* HEADER */
+.header-zone{text-align:center;padding:28px 20px 10px;position:relative;z-index:2;}
+.hz-eyebrow{font-family:'Space Mono',monospace;font-size:11px;color:#1a3366;letter-spacing:6px;text-transform:uppercase;margin-bottom:10px;}
+.hz-name{font-family:'Outfit',sans-serif;font-weight:900;font-size:clamp(28px,5.5vw,64px);letter-spacing:3px;text-transform:uppercase;line-height:1;color:#e8f0ff;position:relative;display:inline-block;}
+.hz-name .blue{color:#4488ff;}
+.hz-name .cursor2{display:inline-block;width:4px;height:0.8em;background:#2255cc;vertical-align:middle;margin-left:5px;animation:blink2 1s step-end infinite;}
+@keyframes blink2{0%,100%{opacity:1;}50%{opacity:0;}}
+.hz-tagrow{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:10px;flex-wrap:wrap;}
+.hz-tag{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;color:#1a3366;text-transform:uppercase;}
+.hz-sep{color:#112244;font-size:16px;}
+
+/* MAIN ROW */
+.main-row{display:flex;flex-direction:row;align-items:center;justify-content:center;flex-wrap:wrap;gap:24px;padding:14px 24px 48px;position:relative;z-index:2;}
+
+/* PHOTO */
+.photo-wrap{width:clamp(160px,17vw,210px);height:clamp(280px,30vw,365px);flex-shrink:0;position:relative;animation:floatA 5s ease-in-out infinite;}
+@keyframes floatA{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+.photo-frame{width:100%;height:100%;background:#060d1f;border:1px solid rgba(34,85,204,0.4);border-radius:4px;overflow:hidden;position:relative;}
+.photo-frame img{width:100%;height:100%;object-fit:cover;object-position:top;filter:brightness(0.9) contrast(1.05);}
+.photo-frame::after{content:'';position:absolute;inset:0;background:linear-gradient(transparent 50%,rgba(4,8,15,0.95) 100%);}
+.photo-hud{position:absolute;inset:0;z-index:3;pointer-events:none;}
+.hud-top{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;}
+.hud-corner{width:12px;height:12px;border-color:rgba(68,136,255,0.6);border-style:solid;}
+.hc-tl{border-width:2px 0 0 2px;} .hc-tr{border-width:2px 2px 0 0;} .hc-bl{border-width:0 0 2px 2px;} .hc-br{border-width:0 2px 2px 0;}
+.hud-bottom{position:absolute;bottom:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:flex-end;}
+.photo-id{font-family:'Space Mono',monospace;font-size:9px;color:rgba(68,136,255,0.7);letter-spacing:2px;}
+.scan-line{position:absolute;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,rgba(68,136,255,0.5),transparent);animation:scanDown 4s linear infinite;top:0;}
+@keyframes scanDown{0%{top:0;opacity:0.8;}90%{opacity:0.3;}100%{top:100%;opacity:0;}}
+
+/* HOLOGRAPHIC FLIP CARD */
+.holo-card{width:clamp(255px,26vw,315px);height:clamp(280px,30vw,365px);flex-shrink:0;perspective:1200px;animation:floatB 6s ease-in-out infinite;}
+@keyframes floatB{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);}}
+.holo-card:hover{animation-play-state:paused;transform:translateY(0)!important;}
+.holo-inner{width:100%;height:100%;transform-style:preserve-3d;transition:transform 0.9s cubic-bezier(0.4,0,0.2,1);}
+.holo-card:hover .holo-inner{transform:rotateY(180deg);}
+.holo-front,.holo-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:4px;}
+
+.holo-front{background:rgba(6,13,31,0.85);backdrop-filter:blur(20px);border:1px solid rgba(34,85,204,0.4);overflow:hidden;display:flex;flex-direction:column;}
+.hf-top{
+  background:linear-gradient(135deg,rgba(34,85,204,0.15),rgba(68,136,255,0.06));
+  border-bottom:1px solid rgba(34,85,204,0.3);
+  padding:16px 18px 14px;position:relative;overflow:hidden;
+}
+.hf-top::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;
+  background:repeating-linear-gradient(135deg,transparent,transparent 8px,rgba(34,85,204,0.04) 8px,rgba(34,85,204,0.04) 9px);}
+.hf-name{font-family:'Outfit',sans-serif;font-weight:900;font-size:clamp(14px,1.8vw,18px);letter-spacing:3px;color:#e8f0ff;text-transform:uppercase;position:relative;z-index:1;}
+.hf-role{font-family:'Space Mono',monospace;font-size:10px;color:#2255cc;letter-spacing:2px;margin-top:3px;position:relative;z-index:1;}
+.hf-num{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-family:'Outfit',sans-serif;font-weight:900;font-size:28px;color:rgba(34,85,204,0.2);letter-spacing:2px;z-index:1;}
+.hf-body{flex:1;padding:14px 18px 10px;display:flex;flex-direction:column;gap:9px;}
+.hf-row{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(34,85,204,0.1);padding-bottom:7px;}
+.hf-row:last-of-type{border-bottom:none;}
+.hfr-k{font-family:'Space Mono',monospace;font-size:10px;color:#1a3366;letter-spacing:2px;text-transform:uppercase;}
+.hfr-v{font-family:'Space Grotesk',sans-serif;font-size:13px;color:#88aadd;font-weight:700;}
+.hfr-v.main{font-family:'Outfit',sans-serif;font-weight:900;font-size:16px;color:#4488ff;}
+.hf-hint{margin-top:auto;font-family:'Space Mono',monospace;font-size:10px;color:#0f1e3e;letter-spacing:2px;text-align:center;animation:blinkH 2s step-end infinite;}
+@keyframes blinkH{0%,100%{opacity:0.3;}50%{opacity:1;}}
+
+.holo-back{background:#030810;border:1px solid rgba(68,136,255,0.3);transform:rotateY(180deg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:14px;text-align:center;}
+.hb-ring{width:56px;height:56px;border-radius:50%;border:2px solid rgba(34,85,204,0.4);display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-weight:900;font-size:18px;color:#4488ff;position:relative;}
+.hb-ring::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:1px solid rgba(34,85,204,0.15);}
+.hb-title{font-family:'Space Mono',monospace;font-size:11px;color:#2255cc;letter-spacing:4px;text-transform:uppercase;}
+.hb-tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
+.hbtag{font-family:'Space Mono',monospace;font-size:10px;color:#1a3366;border:1px solid rgba(34,85,204,0.25);padding:3px 9px;border-radius:40px;background:#060d1f;letter-spacing:1px;}
+.hb-quote{font-family:'Space Grotesk',sans-serif;font-style:italic;font-size:12px;color:#1a3366;line-height:1.9;}
+
+/* ORBIT STATS */
+.orbit-col{display:flex;flex-direction:column;gap:10px;flex-shrink:0;animation:floatC 5s ease-in-out infinite;}
+@keyframes floatC{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+.orbit-card{
+  width:clamp(130px,13vw,165px);background:#060d1f;border:1px solid rgba(34,85,204,0.18);
+  border-left:2px solid #2255cc;padding:12px 14px;border-radius:3px;
+  transition:background 0.3s,border-color 0.3s;position:relative;overflow:hidden;
+}
+.orbit-card::after{content:'';position:absolute;top:0;right:0;width:40px;height:40px;background:radial-gradient(circle,rgba(34,85,204,0.08),transparent);border-radius:50%;}
+.orbit-card:hover{background:#080f22;border-color:#4488ff;}
+.oc-icon{margin-bottom:5px;}
+.oc-icon svg{width:14px;height:14px;}
+.oc-val{font-family:'Outfit',sans-serif;font-weight:900;font-size:17px;color:#4488ff;letter-spacing:1px;}
+.oc-lbl{font-family:'Space Mono',monospace;font-size:10px;color:#1a3366;letter-spacing:2px;text-transform:uppercase;}
+
+/* BUTTON */
+.btn-zone{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.launch-btn{
+  font-family:'Outfit',sans-serif;font-weight:900;font-size:14px;letter-spacing:4px;text-transform:uppercase;
+  padding:15px 28px;background:#060d1f;color:#4488ff;
+  border:1px solid rgba(34,85,204,0.5);cursor:pointer;border-radius:4px;
+  position:relative;overflow:hidden;
+  transition:color 0.4s,background 0.4s,border-color 0.4s;
+}
+.launch-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#2255cc,#4488ff);opacity:0;transition:opacity 0.4s;}
+.launch-btn:hover::before{opacity:1;}
+.launch-btn:hover{color:#e8f0ff;border-color:#4488ff;}
+.launch-btn span{position:relative;z-index:1;}
+
+/* POPUP */
+.popup-wrap{display:none;position:fixed;inset:0;background:rgba(4,8,15,0.95);backdrop-filter:blur(14px);z-index:1000;padding:20px;align-items:center;justify-content:center;}
+.popup-wrap.open{display:flex;}
+.popup-box{background:#040b1a;border:1px solid rgba(34,85,204,0.35);border-radius:6px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;animation:popIn 0.4s ease;position:relative;}
+@keyframes popIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.popup-hf{background:#060d1f;border-bottom:1px solid rgba(34,85,204,0.3);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
+.popup-title-t{font-family:'Outfit',sans-serif;font-weight:900;font-size:13px;letter-spacing:4px;color:#4488ff;text-transform:uppercase;}
+.popup-x{background:none;border:none;font-family:'Space Mono',monospace;font-size:12px;color:#1a3366;cursor:pointer;padding:4px 8px;letter-spacing:1px;}
+.popup-x:hover{color:#4488ff;}
+.popup-body{padding:28px;}
+.popup-eyebrow{font-family:'Space Mono',monospace;font-size:10px;color:#1a3366;letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;}
+.popup-heading{font-family:'Outfit',sans-serif;font-weight:900;font-size:clamp(18px,3vw,26px);color:#e8f0ff;margin-bottom:14px;letter-spacing:1px;}
+.popup-div{height:1px;background:rgba(34,85,204,0.2);margin-bottom:20px;position:relative;overflow:hidden;}
+.popup-div::after{content:'';position:absolute;top:0;left:0;height:100%;width:40%;background:linear-gradient(90deg,#2255cc,transparent);animation:divPulse 3s ease-in-out infinite alternate;}
+@keyframes divPulse{0%{width:20%;}100%{width:75%;}}\
+.popup-text p{font-family:'Space Grotesk',sans-serif;font-size:14px;line-height:1.95;color:#2a4a7a;margin-bottom:11px;}
+.popup-text p strong{color:#6699cc;}
+.popup-sig{margin-top:20px;font-family:'Space Mono',monospace;font-size:10px;color:#0f1e3e;letter-spacing:3px;text-align:right;}
+
+@media(max-width:900px){.main-row{gap:18px;padding:10px 16px 40px;}.orbit-col{flex-direction:row;flex-wrap:wrap;justify-content:center;}.orbit-card{width:140px;}}
+@media(max-width:700px){.main-row{flex-direction:column;gap:16px;padding:10px 14px 40px;}.photo-wrap{width:82vw;max-width:250px;height:320px;}.holo-card{width:82vw;max-width:310px;}.orbit-col{flex-direction:row;flex-wrap:wrap;justify-content:center;}.orbit-card{width:140px;}.launch-btn{width:82vw;max-width:280px;text-align:center;}}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="vault-door">
+    <div class="vault-spin"></div>
+    <div class="vault-inner">KTJ</div>
+  </div>
+  <span id="loader-txt"></span>
+</div>
+
+<div id="main">
+  <canvas id="canvas"></canvas>
+
+  <div class="top-strip">
+    <span class="ts-id">PROFILE // KTJ · BUSINESS · MSc CS 2024–2026</span>
+    <div class="ts-chips">
+      <span class="chip on">ACTIVE</span>
+      <span class="chip">Strategy</span>
+      <span class="chip">Ventures</span>
+      <span class="chip">Leadership</span>
+    </div>
+  </div>
+
+  <div class="header-zone">
+    <div class="hz-eyebrow">Executive Profile · Unlocked</div>
+    <div class="hz-name">KOTHER <span class="blue">THOWFEEK</span><span class="cursor2"></span></div>
+    <div class="hz-tagrow">
+      <span class="hz-tag">Business</span><span class="hz-sep">◆</span>
+      <span class="hz-tag">Strategy</span><span class="hz-sep">◆</span>
+      <span class="hz-tag">Vision</span>
+    </div>
+  </div>
+
+  <div class="main-row">
+
+    <div class="photo-wrap">
+      <div class="photo-frame">
+        <img src="images/KotherThowfeek.png" alt="Kother Thowfeek" onerror="this.style.display='none'">
+        <div class="photo-hud">
+          <div class="hud-top">
+            <div class="hud-corner hc-tl"></div>
+            <div class="hud-corner hc-tr"></div>
+          </div>
+          <div class="hud-bottom">
+            <div class="hud-corner hc-bl"></div>
+            <div class="photo-id">KTJ-001</div>
+            <div class="hud-corner hc-br"></div>
+          </div>
+          <div class="scan-line"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="holo-card" id="holoCard">
+      <div class="holo-inner" id="holoInner">
+        <div class="holo-front">
+          <div class="hf-top">
+            <div class="hf-name">K. Thowfeek</div>
+            <div class="hf-role">Business · Strategy · Growth</div>
+            <div class="hf-num">01</div>
+          </div>
+          <div class="hf-body">
+            <div class="hf-row"><span class="hfr-k">Focus</span><span class="hfr-v main">Business</span></div>
+            <div class="hf-row"><span class="hfr-k">Mindset</span><span class="hfr-v">Entrepreneurial</span></div>
+            <div class="hf-row"><span class="hfr-k">Program</span><span class="hfr-v">MSc CS 24–26</span></div>
+            <div class="hf-row"><span class="hfr-k">Mode</span><span class="hfr-v">Full Execution</span></div>
+            <div class="hf-hint">HOVER TO FLIP ▸</div>
+          </div>
+        </div>
+        <div class="holo-back">
+          <div class="hb-ring">KTJ</div>
+          <div class="hb-title">Core Strengths</div>
+          <div class="hb-tags">
+            <span class="hbtag">Strategy</span><span class="hbtag">Finance</span>
+            <span class="hbtag">Marketing</span><span class="hbtag">Negotiation</span>
+            <span class="hbtag">Leadership</span><span class="hbtag">Networks</span>
+          </div>
+          <div class="hb-quote">"The business world rewards those who act before the market catches up. He moves first."</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="orbit-col">
+      <div class="orbit-card">
+        <div class="oc-icon"><svg viewBox="0 0 14 14" fill="none"><path d="M2 10L6 5l3 4 2-3" stroke="#2255cc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+        <div class="oc-val">Vision</div><div class="oc-lbl">Core Drive</div>
+      </div>
+      <div class="orbit-card">
+        <div class="oc-icon"><svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5" stroke="#2255cc" stroke-width="1.5"/><path d="M7 4v3l2 2" stroke="#2255cc" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+        <div class="oc-val">Hustle</div><div class="oc-lbl">Every Hour</div>
+      </div>
+      <div class="orbit-card">
+        <div class="oc-icon"><svg viewBox="0 0 14 14" fill="none"><path d="M7 2L9 6h4L10 9l1.5 4L7 11l-4.5 2L4 9 1 6h4z" stroke="#2255cc" stroke-width="1.3" stroke-linejoin="round" fill="none"/></svg></div>
+        <div class="oc-val">Impact</div><div class="oc-lbl">The Goal</div>
+      </div>
+    </div>
+
+    <div class="btn-zone">
+      <button class="launch-btn" onclick="openMsg()"><span>UNLOCK MESSAGE ▸</span></button>
+    </div>
+
+  </div>
+</div>
+
+<div class="popup-wrap" id="popup">
+  <div class="popup-box">
+    <div class="popup-hf">
+      <span class="popup-title-t">Confidential Brief · KTJ</span>
+      <button class="popup-x" onclick="closeMsg()">CLOSE ✕</button>
+    </div>
+    <div class="popup-body">
+      <div class="popup-eyebrow">To · Kother Thowfeek · Business</div>
+      <div class="popup-heading">The Brief Nobody Sends You</div>
+      <div class="popup-div"></div>
+      <div class="popup-text">
+        <p>The greatest CEOs in history weren't the most educated people in their field. They were the ones who <strong>combined hunger with clarity</strong> — and never confused the two for each other.</p>
+        <p>Business isn't a subject, Thowfeek. It's a lens. And once you start seeing the world through it, <strong>everything becomes an opportunity, a margin, a system to improve.</strong></p>
+        <p>There will be rooms where people underestimate you. Meetings where the deal seems too far away. Moments where the numbers don't add up yet. <strong>Those are exactly the moments built for you.</strong></p>
+        <p>Study the ones who built empires with nothing but an idea and the audacity to execute it. Then <strong>add your own chapter</strong> — because the world doesn't need another follower of someone else's playbook.</p>
+        <p>Build your network before you need it. Learn to read people faster than spreadsheets. And always, always remember — <strong>the best deal you'll ever close is the one you make with yourself</strong> to keep going when it gets hard.</p>
+        <p>The market is open. <strong>Your position is unclaimed. Go take it.</strong></p>
+      </div>
+      <div class="popup-sig">// BRIEF ENDS · KTJ-001 · STATUS: UNSTOPPABLE</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const lines=["Unlocking vault...","Loading executive file...","Welcome, Thowfeek!"];
+let li=0,lj=0;
+function typeLoader(){
+  const el=document.getElementById("loader-txt");
+  if(lj<lines[li].length){el.textContent+=lines[li][lj];lj++;setTimeout(typeLoader,50);}
+  else{setTimeout(()=>{el.textContent="";lj=0;li++;if(li<lines.length)typeLoader();else boot();},950);}
+}
+typeLoader();
+
+function boot(){
+  document.getElementById("loader").style.display="none";
+  document.getElementById("main").style.display="block";
+  initCanvas();drawLoop();
+  const c=document.getElementById("holoCard"),i=document.getElementById("holoInner");
+  c.addEventListener("mouseenter",()=>{c.style.animationPlayState="paused";c.style.transform="translateY(0)";i.style.transform="rotateY(180deg)";});
+  c.addEventListener("mouseleave",()=>{i.style.transform="rotateY(0deg)";setTimeout(()=>{c.style.transform="";c.style.animationPlayState="running";},880);});
+}
+
+const canvas=document.getElementById("canvas"),ctx=canvas.getContext("2d");
+let W,H,pts=[];
+function initCanvas(){
+  W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;pts=[];
+  for(let i=0;i<100;i++){
+    const t=Math.random();
+    pts.push({
+      x:Math.random()*W,y:Math.random()*H,
+      vx:(Math.random()-0.5)*0.4,vy:(Math.random()-0.5)*0.35,
+      a:Math.random()*0.5+0.1,da:Math.random()*0.003+0.001,
+      r:Math.random()*1.4+0.3,
+      type:t<0.35?'dot':t<0.65?'hline':'vline',
+      w:Math.random()*40+10
+    });
+  }
+}
+window.addEventListener("resize",initCanvas);
+function drawLoop(){
+  ctx.clearRect(0,0,W,H);
+  pts.forEach(p=>{
+    p.a+=p.da;if(p.a>0.5||p.a<0.05)p.da*=-1;
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+    ctx.save();ctx.globalAlpha=p.a;
+    if(p.type==='dot'){ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle="#2255cc";ctx.fill();}
+    else if(p.type==='hline'){ctx.fillStyle="rgba(34,85,204,0.5)";ctx.fillRect(p.x,p.y,p.w,1);}
+    else{ctx.fillStyle="rgba(68,136,255,0.2)";ctx.fillRect(p.x,p.y,1,p.w*0.5);}
+    ctx.restore();
+  });
+  requestAnimationFrame(drawLoop);
+}
+function openMsg(){document.getElementById("popup").classList.add("open");}
+function closeMsg(){document.getElementById("popup").classList.remove("open");}
+document.getElementById("popup").addEventListener("click",e=>{if(e.target===document.getElementById("popup"))closeMsg();});
+</script>
+</body>
+</html>
