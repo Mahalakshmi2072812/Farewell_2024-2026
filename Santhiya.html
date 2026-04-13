@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Santhiya</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  font-family:'DM Sans',sans-serif;
+  background:#f0fdf8;
+  color:#1a2e2a;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* LOADER */
+#loader{
+  position:fixed;
+  width:100%;height:100%;
+  background:#f0fdf8;
+  display:flex;
+  justify-content:center;align-items:center;
+  font-size:18px;z-index:999;
+  flex-direction:column;
+  gap:20px;
+}
+.loader-ring{
+  width:56px;height:56px;
+  border:3px solid rgba(16,185,129,0.15);
+  border-top:3px solid #10b981;
+  border-radius:50%;
+  animation:spin 0.9s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+#typing{
+  color:#10b981;
+  font-size:15px;
+  letter-spacing:2px;
+  font-weight:500;
+}
+
+canvas{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* BACKGROUND */
+#main{
+  display:none;
+  min-height:100vh;
+  background:linear-gradient(145deg,#f0fdf8 0%,#ecfdf5 40%,#f0f9ff 70%,#faf5ff 100%);
+  position:relative;z-index:1;
+}
+
+#main::before{
+  content:'';
+  position:fixed;
+  top:0;left:0;width:100%;height:100%;
+  background:
+    radial-gradient(ellipse at 10% 40%, rgba(16,185,129,0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 90% 15%, rgba(99,102,241,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 55% 90%, rgba(20,184,166,0.1) 0%, transparent 50%);
+  pointer-events:none;
+  z-index:0;
+  animation:meshShift 8s ease-in-out infinite alternate;
+}
+@keyframes meshShift{0%{opacity:0.7;}100%{opacity:1;}}
+
+/* HEADER */
+.header{
+  text-align:center;
+  font-size:clamp(28px,6vw,62px);
+  font-weight:700;
+  font-family:'Playfair Display',serif;
+  letter-spacing:3px;
+  background:linear-gradient(90deg,#059669,#10b981,#6366f1,#10b981,#059669);
+  background-size:300% auto;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:fadeDown 1s ease, shimmer 5s linear infinite;
+  padding:32px 20px 8px;
+  position:relative;z-index:1;
+}
+@keyframes shimmer{0%{background-position:0% center;}100%{background-position:300% center;}}
+
+/* TAGLINE */
+.tagline{
+  text-align:center;
+  font-size:clamp(10px,1.3vw,13px);
+  color:#059669;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  font-weight:500;
+  opacity:0.7;
+  margin-top:-4px;
+  position:relative;z-index:1;
+  animation:fadeDown 1.2s ease;
+}
+
+/* MAIN ROW */
+.main-row{
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:28px;
+  padding:20px 20px 40px;
+  min-height:calc(100vh - 115px);
+  position:relative;z-index:1;
+}
+
+/* FLOAT */
+@keyframes float1{0%,100%{transform:translateY(0px);}50%{transform:translateY(-13px);}}
+@keyframes float2{0%,100%{transform:translateY(0px);}50%{transform:translateY(-10px);}}
+@keyframes float3{0%,100%{transform:translateY(0px);}50%{transform:translateY(-12px);}}
+
+/* IMAGE CARD */
+.flip-card{
+  width:clamp(150px,18vw,210px);
+  height:clamp(290px,34vw,370px);
+  perspective:1000px;
+  flex-shrink:0;
+  animation:float1 4.2s ease-in-out infinite;
+  filter:drop-shadow(0 0 16px rgba(16,185,129,0.55)) drop-shadow(0 0 40px rgba(16,185,129,0.2));
+  transition:filter 0.3s;
+}
+.flip-card:hover{
+  filter:drop-shadow(0 0 28px rgba(99,102,241,0.8)) drop-shadow(0 0 60px rgba(99,102,241,0.35));
+}
+
+.flip-inner{width:100%;height:100%;transition:transform 0.8s;transform-style:preserve-3d;position:relative;}
+.flip-card:hover .flip-inner{transform:rotateY(180deg);}
+.flip-front,.flip-back{position:absolute;width:100%;height:100%;border-radius:24px;backface-visibility:hidden;}
+.flip-front{
+  overflow:hidden;
+  background:#e6faf3;
+  border:1.5px solid rgba(16,185,129,0.35);
+}
+.flip-front img{width:100%;height:100%;object-fit:cover;object-position:top;}
+
+/* PLACEHOLDER */
+.placeholder{
+  width:100%;height:100%;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:linear-gradient(160deg,#ecfdf5,#f0f9ff);
+  gap:12px;
+}
+.placeholder .icon{font-size:52px;}
+.placeholder .label{font-size:11px;color:#10b981;letter-spacing:2px;text-transform:uppercase;font-weight:600;}
+
+.flip-back{
+  background:linear-gradient(145deg,#ecfdf5,#ede9fe);
+  border:1.5px solid rgba(99,102,241,0.25);
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;padding:20px;
+  transform:rotateY(180deg);
+  font-size:clamp(11px,1.4vw,13px);line-height:1.7;
+  color:#374151;
+}
+
+/* INFO CARD */
+.flip-card-card{
+  width:clamp(240px,28vw,310px);
+  height:clamp(290px,34vw,370px);
+  perspective:1000px;flex-shrink:0;
+  animation:float2 5s ease-in-out infinite;
+  filter:drop-shadow(0 0 18px rgba(99,102,241,0.4)) drop-shadow(0 0 45px rgba(16,185,129,0.2));
+}
+.flip-card-card:hover{
+  filter:drop-shadow(0 0 28px rgba(20,184,166,0.8)) drop-shadow(0 0 65px rgba(20,184,166,0.35));
+}
+
+.flip-inner-card{width:100%;height:100%;transition:transform 0.8s;transform-style:preserve-3d;position:relative;}
+.flip-card-card:hover .flip-inner-card{transform:rotateY(180deg);}
+.flip-front-card,.flip-back-card{position:absolute;width:100%;height:100%;border-radius:26px;backface-visibility:hidden;}
+.flip-front-card{
+  background:rgba(255,255,255,0.75);
+  backdrop-filter:blur(24px);
+  border:1.5px solid rgba(16,185,129,0.2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:28px;
+  box-shadow:0 8px 32px rgba(16,185,129,0.08);
+}
+.flip-back-card{
+  background:linear-gradient(145deg,#ecfdf5,#ede9fe);
+  border:1.5px solid rgba(99,102,241,0.2);
+  transform:rotateY(180deg);
+  display:flex;align-items:center;justify-content:center;
+  text-align:justify;
+  font-size:clamp(11px,1.3vw,13px);line-height:1.8;padding:24px;
+  color:#374151;
+}
+
+.role{
+  background:linear-gradient(90deg,#059669,#6366f1);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  font-size:clamp(14px,1.7vw,18px);font-weight:700;line-height:1.5;
+}
+.quote{
+  font-size:clamp(11px,1.3vw,13px);margin-top:12px;line-height:1.7;
+  color:#4b5563;font-style:italic;
+}
+.batch{
+  margin-top:10px;font-size:clamp(10px,1.2vw,12px);
+  color:#10b981;opacity:0.6;font-weight:500;letter-spacing:1px;
+}
+.hint{
+  margin-top:14px;font-size:clamp(10px,1.1vw,11px);
+  color:#6366f1;opacity:0.7;letter-spacing:2px;
+  animation:pulse 2.2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:0.3;}50%{opacity:1;}}
+
+/* BUTTON */
+.btn-col{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.msg-btn{
+  padding:13px 28px;border-radius:50px;
+  border:1.5px solid #10b981;
+  background:white;
+  color:#059669;font-weight:700;cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+  font-size:clamp(12px,1.4vw,15px);
+  transition:0.3s;white-space:nowrap;
+  letter-spacing:0.5px;
+  box-shadow:0 4px 20px rgba(16,185,129,0.2);
+}
+.msg-btn:hover{
+  background:linear-gradient(135deg,#10b981,#6366f1);
+  color:white;
+  border-color:transparent;
+  transform:scale(1.06) translateY(-2px);
+  box-shadow:0 8px 30px rgba(16,185,129,0.4);
+}
+
+/* POPUP */
+.popup{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(240,253,248,0.88);
+  display:none;justify-content:center;align-items:center;
+  z-index:1000;padding:16px;
+  backdrop-filter:blur(10px);
+}
+.popup-content{
+  background:rgba(255,255,255,0.92);
+  border:1.5px solid rgba(16,185,129,0.25);
+  backdrop-filter:blur(30px);
+  padding:32px;border-radius:28px;
+  width:100%;max-width:520px;
+  animation:fadeIn 0.5s ease;position:relative;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(16,185,129,0.15), 0 4px 20px rgba(99,102,241,0.1);
+}
+.popup-title{
+  background:linear-gradient(90deg,#059669,#6366f1);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:18px;font-size:clamp(16px,2.5vw,22px);font-weight:700;
+  font-family:'Playfair Display',serif;
+}
+.close{
+  position:absolute;top:16px;right:20px;font-size:22px;
+  cursor:pointer;color:#10b981;transition:0.2s;font-weight:300;
+}
+.close:hover{color:#6366f1;transform:scale(1.2);}
+.popup-content p{
+  font-size:clamp(12px,1.5vw,14px);line-height:2;
+  text-align:justify;color:#374151;
+}
+
+/* DECORATIVE TOP BAR IN POPUP */
+.popup-bar{
+  display:flex;gap:6px;margin-bottom:18px;
+}
+.popup-bar span{
+  height:4px;border-radius:4px;
+  flex:1;
+}
+.bar1{background:linear-gradient(90deg,#10b981,#34d399);}
+.bar2{background:linear-gradient(90deg,#6366f1,#a5b4fc);}
+.bar3{background:linear-gradient(90deg,#14b8a6,#5eead4);}
+
+@keyframes fadeDown{from{opacity:0;transform:translateY(-30px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .main-row{gap:16px;padding:16px 16px 40px;min-height:auto;}
+  .flip-card{width:165px;height:290px;}
+  .flip-card-card{width:260px;height:290px;}
+}
+@media(max-width:700px){
+  .main-row{flex-direction:column;gap:18px;padding:16px 12px 40px;min-height:auto;}
+  .flip-card{width:230px;height:310px;}
+  .flip-card-card{width:290px;height:270px;}
+}
+@media(max-width:480px){
+  .header{font-size:clamp(22px,8vw,34px);letter-spacing:2px;padding:20px 12px 4px;}
+  .tagline{font-size:9px;letter-spacing:2px;}
+  .flip-card{width:82vw;max-width:270px;height:330px;}
+  .flip-card-card{width:82vw;max-width:310px;height:260px;}
+  .msg-btn{width:82vw;max-width:280px;text-align:center;}
+  .main-row{gap:14px;padding:10px 10px 40px;}
+}
+@media(max-width:360px){
+  .flip-card{height:270px;}
+  .flip-card-card{height:240px;}
+}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-ring"></div>
+  <span id="typing"></span>
+</div>
+
+<div id="main">
+  <canvas id="canvas"></canvas>
+  <div class="header" id="name"></div>
+  <div class="tagline">Design · Develop · Deliver · Inspire</div>
+
+  <div class="main-row">
+
+    <!-- IMAGE CARD -->
+    <div class="flip-card">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <img src="images/Santhiya.png" alt="Santhiya">
+          <div class="placeholder">
+            <span class="icon">🌿</span>
+            <span class="label">Santhiya</span>
+          </div>
+        </div>
+        <div class="flip-back">
+          <p>She doesn't just write code — she crafts experiences. Elegant, thoughtful, and built to last. 🌿</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFO CARD -->
+    <div class="flip-card-card">
+      <div class="flip-inner-card">
+        <div class="flip-front-card">
+          <p class="role">Software Developer</p>
+          <p class="quote">"Turning ideas into elegant solutions — one line of code at a time."</p>
+          <p class="batch">MSc Computer Science (2024–2026)</p>
+          <p class="hint">✦ Hover to explore ✦</p>
+        </div>
+        <div class="flip-back-card">
+          <p>Great software isn't just functional — it's thoughtful. Every project you touch reflects your care, creativity, and commitment to doing things right. Keep building beautifully. ✨</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUTTON -->
+    <div class="btn-col">
+      <button class="msg-btn" onclick="showMsg(event)">View Message 💚</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- POPUP -->
+<div id="popup" class="popup">
+  <div class="popup-content">
+    <span class="close" onclick="closePopup()">&times;</span>
+    <div class="popup-bar">
+      <span class="bar1"></span>
+      <span class="bar2"></span>
+      <span class="bar3"></span>
+    </div>
+    <p class="popup-title">✨ Your Journey Starts Now ✨</p>
+    <p>
+      You chose a field that demands both logic and creativity — and you've shown you can handle both beautifully.
+
+      Every project you've worked on, every bug you've solved, every late night spent debugging — none of it was wasted. It was all quietly building the developer you are becoming today.
+
+      The world of software needs people who don't just write code that works, but code that matters. Code that is clean, thoughtful, and built with intention. That's exactly the kind of developer you are growing into.
+
+      There will be moments when imposter syndrome creeps in — when you wonder if you're good enough, fast enough, smart enough. In those moments, remember: you are not behind. You are exactly where your journey needs you to be.
+
+      Keep learning. Keep building. Keep showing up even when it feels hard. Because the most beautiful applications were not built in a day — and neither are the most remarkable developers.
+
+      You have everything it takes — the curiosity, the discipline, and the heart.
+
+      So keep going, Santhiya. Your best code is still ahead of you. 💚
+    </p>
+  </div>
+</div>
+
+<script>
+/* LOADER */
+let text=["Setting up workspace...","Loading profile...","Welcome, Santhiya! 🌿"];
+let i=0,j=0;
+function typeLoader(){
+  let el=document.getElementById("typing");
+  if(j<text[i].length){el.innerHTML+=text[i][j];j++;setTimeout(typeLoader,45);}
+  else{setTimeout(()=>{el.innerHTML="";j=0;i++;if(i<text.length)typeLoader();else startMain();},900);}
+}
+typeLoader();
+
+function startMain(){
+  document.getElementById("loader").style.display="none";
+  document.getElementById("main").style.display="block";
+  typeName();
+  resizeCanvas();
+}
+
+/* NAME */
+let nameText="Santhiya",k=0;
+function typeName(){
+  if(k<nameText.length){document.getElementById("name").innerHTML+=nameText[k];k++;setTimeout(typeName,90);}
+}
+
+/* CANVAS */
+let canvas=document.getElementById("canvas");
+let ctx=canvas.getContext("2d");
+function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+resizeCanvas();
+window.addEventListener("resize",resizeCanvas);
+
+/* FLOATING BUBBLES */
+let bubbles=[];
+for(let n=0;n<55;n++){
+  bubbles.push({
+    x:Math.random()*window.innerWidth,
+    y:Math.random()*window.innerHeight,
+    r:Math.random()*4+1,
+    speedX:(Math.random()-0.5)*0.4,
+    speedY:-(Math.random()*0.5+0.2),
+    alpha:Math.random()*0.5+0.1,
+    hue:Math.random()>0.5?'16,185,129':'99,102,241'
+  });
+}
+
+/* SOFT SPARKLES */
+let sparkles=[];
+function addSparkle(){
+  sparkles.push({
+    x:Math.random()*canvas.width,
+    y:Math.random()*canvas.height,
+    size:Math.random()*3+1,
+    alpha:1,
+    decay:Math.random()*0.02+0.01,
+    hue:Math.random()>0.5?'16,185,129':'20,184,166'
+  });
+}
+setInterval(addSparkle,300);
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  /* bubbles */
+  bubbles.forEach(b=>{
+    b.x+=b.speedX;
+    b.y+=b.speedY;
+    if(b.y<-10){b.y=canvas.height+10;b.x=Math.random()*canvas.width;}
+    if(b.x<-10||b.x>canvas.width+10) b.speedX*=-1;
+    ctx.beginPath();
+    ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${b.hue},${b.alpha})`;
+    ctx.fill();
+  });
+
+  /* sparkles */
+  sparkles.forEach((s,idx)=>{
+    ctx.save();
+    ctx.globalAlpha=s.alpha;
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.size,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${s.hue},1)`;
+    ctx.fill();
+    ctx.restore();
+    s.alpha-=s.decay;
+    if(s.alpha<=0) sparkles.splice(idx,1);
+  });
+
+  requestAnimationFrame(draw);
+}
+draw();
+
+function showMsg(e){e.stopPropagation();document.getElementById("popup").style.display="flex";}
+function closePopup(){document.getElementById("popup").style.display="none";}
+</script>
+</body>
+</html>
