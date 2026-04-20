@@ -3,105 +3,127 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Santhiya</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<title>SANTHIYA — ARCHITECT OF CODE</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;500;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 
 body{
-  font-family:'DM Sans',sans-serif;
-  background:#f0fdf8;
-  color:#1a2e2a;
+  font-family:'Montserrat',sans-serif;
+  background:#0d0d0d;
+  color:#e8e8e8;
   min-height:100vh;
   overflow-x:hidden;
+  cursor:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><circle cx="10" cy="10" r="8" fill="none" stroke="%23c9a961" stroke-width="1.5"/></svg>') 10 10, auto;
+}
+
+/* ELEGANT BACKGROUND */
+#bg-elements{
+  position:fixed;
+  width:100%;height:100%;
+  top:0;left:0;
+  z-index:0;
+  overflow:hidden;
+}
+
+.bg-circle{
+  position:absolute;
+  border-radius:50%;
+  opacity:0.03;
+  border:1px solid #c9a961;
+}
+.circle-1{width:400px;height:400px;top:-100px;left:-100px;animation:float1 20s ease-in-out infinite;}
+.circle-2{width:500px;height:500px;bottom:-150px;right:-100px;animation:float2 25s ease-in-out infinite;}
+.circle-3{width:300px;height:300px;top:50%;left:50%;transform:translate(-50%,-50%);animation:float3 30s ease-in-out infinite;}
+
+@keyframes float1{0%,100%{transform:translate(0,0);}50%{transform:translate(30px,-30px);}}
+@keyframes float2{0%,100%{transform:translate(0,0);}50%{transform:translate(-30px,30px);}}
+@keyframes float3{0%,100%{transform:translate(-50%,-50%);}50%{transform:translate(-50%,-50%) scale(1.05);}}
+
+/* GRAIN TEXTURE */
+#grain{
+  position:fixed;
+  width:100%;height:100%;
+  top:0;left:0;
+  background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4"/></filter><rect width="100" height="100" fill="rgb(13,13,13)" filter="url(%23n)"/></svg>');
+  opacity:0.02;
+  pointer-events:none;
+  z-index:1;
 }
 
 /* LOADER */
 #loader{
   position:fixed;
   width:100%;height:100%;
-  background:#f0fdf8;
+  background:linear-gradient(135deg,#0d0d0d,#1a1a1a);
   display:flex;
   justify-content:center;align-items:center;
-  font-size:18px;z-index:999;
+  z-index:999;
   flex-direction:column;
-  gap:20px;
+  gap:25px;
 }
-.loader-ring{
-  width:56px;height:56px;
-  border:3px solid rgba(16,185,129,0.15);
-  border-top:3px solid #10b981;
-  border-radius:50%;
-  animation:spin 0.9s linear infinite;
+
+.elegant-loader{
+  width:1px;
+  height:60px;
+  background:linear-gradient(180deg,transparent,#c9a961,transparent);
+  box-shadow:0 0 30px rgba(201,169,97,0.5);
+  animation:stretchLoader 2s ease-in-out infinite;
 }
-@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes stretchLoader{0%,100%{height:60px;}50%{height:100px;}}
+
 #typing{
-  color:#10b981;
-  font-size:15px;
-  letter-spacing:2px;
-  font-weight:500;
+  color:#c9a961;
+  font-size:12px;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  font-weight:300;
+  font-style:italic;
 }
 
-canvas{
-  position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  pointer-events:none;
-  z-index:0;
-}
-
-/* BACKGROUND */
+/* MAIN CONTENT */
 #main{
   display:none;
   min-height:100vh;
-  background:linear-gradient(145deg,#f0fdf8 0%,#ecfdf5 40%,#f0f9ff 70%,#faf5ff 100%);
-  position:relative;z-index:1;
+  position:relative;
+  z-index:2;
 }
-
-#main::before{
-  content:'';
-  position:fixed;
-  top:0;left:0;width:100%;height:100%;
-  background:
-    radial-gradient(ellipse at 10% 40%, rgba(16,185,129,0.12) 0%, transparent 55%),
-    radial-gradient(ellipse at 90% 15%, rgba(99,102,241,0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 55% 90%, rgba(20,184,166,0.1) 0%, transparent 50%);
-  pointer-events:none;
-  z-index:0;
-  animation:meshShift 8s ease-in-out infinite alternate;
-}
-@keyframes meshShift{0%{opacity:0.7;}100%{opacity:1;}}
 
 /* HEADER */
 .header{
   text-align:center;
-  font-size:clamp(28px,6vw,62px);
-  font-weight:700;
-  font-family:'Playfair Display',serif;
-  letter-spacing:3px;
-  background:linear-gradient(90deg,#059669,#10b981,#6366f1,#10b981,#059669);
-  background-size:300% auto;
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-  animation:fadeDown 1s ease, shimmer 5s linear infinite;
-  padding:32px 20px 8px;
-  position:relative;z-index:1;
+  font-size:clamp(48px,8vw,68px);
+  font-weight:100;
+  letter-spacing:8px;
+  font-family:'Cormorant Garamond',serif;
+  color:#c9a961;
+  padding:70px 20px 20px;
+  position:relative;
+  text-transform:uppercase;
+  animation:fadeInDown 1s ease;
 }
-@keyframes shimmer{0%{background-position:0% center;}100%{background-position:300% center;}}
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-40px);}to{opacity:1;transform:translateY(0);}}
 
-/* TAGLINE */
 .tagline{
   text-align:center;
   font-size:clamp(10px,1.3vw,13px);
-  color:#059669;
-  letter-spacing:4px;
+  color:#8a8a8a;
+  letter-spacing:5px;
   text-transform:uppercase;
-  font-weight:500;
   opacity:0.7;
-  margin-top:-4px;
-  position:relative;z-index:1;
-  animation:fadeDown 1.2s ease;
+  margin-top:-10px;
+  font-weight:300;
+  animation:fadeInUp 1.2s ease;
+}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(40px);}to{opacity:1;transform:translateY(0);}}
+
+/* DIVIDER */
+.divider{
+  width:60px;
+  height:1px;
+  background:linear-gradient(90deg,transparent,#c9a961,transparent);
+  margin:20px auto;
+  opacity:0.5;
 }
 
 /* MAIN ROW */
@@ -111,260 +133,323 @@ canvas{
   align-items:center;
   justify-content:center;
   flex-wrap:wrap;
-  gap:28px;
-  padding:20px 20px 40px;
-  min-height:calc(100vh - 115px);
-  position:relative;z-index:1;
+  gap:60px;
+  padding:40px 20px 60px;
+  min-height:calc(100vh - 200px);
 }
 
-/* FLOAT */
-@keyframes float1{0%,100%{transform:translateY(0px);}50%{transform:translateY(-13px);}}
-@keyframes float2{0%,100%{transform:translateY(0px);}50%{transform:translateY(-10px);}}
-@keyframes float3{0%,100%{transform:translateY(0px);}50%{transform:translateY(-12px);}}
-
-/* IMAGE CARD */
-.flip-card{
-  width:clamp(150px,18vw,210px);
-  height:clamp(290px,34vw,370px);
-  perspective:1000px;
-  flex-shrink:0;
-  animation:float1 4.2s ease-in-out infinite;
-  filter:drop-shadow(0 0 16px rgba(16,185,129,0.55)) drop-shadow(0 0 40px rgba(16,185,129,0.2));
-  transition:filter 0.3s;
+/* IMAGE CARD - PREMIUM */
+.premium-card{
+  width:clamp(200px,24vw,280px);
+  height:clamp(320px,38vw,450px);
+  position:relative;
+  animation:float 5s ease-in-out infinite;
 }
-.flip-card:hover{
-  filter:drop-shadow(0 0 28px rgba(99,102,241,0.8)) drop-shadow(0 0 60px rgba(99,102,241,0.35));
-}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-25px);}}
 
-.flip-inner{width:100%;height:100%;transition:transform 0.8s;transform-style:preserve-3d;position:relative;}
-.flip-card:hover .flip-inner{transform:rotateY(180deg);}
-.flip-front,.flip-back{position:absolute;width:100%;height:100%;border-radius:24px;backface-visibility:hidden;}
-.flip-front{
+.premium-frame{
+  width:100%;
+  height:100%;
+  border:1px solid #c9a961;
+  background:#0d0d0d;
+  position:relative;
   overflow:hidden;
-  background:#e6faf3;
-  border:1.5px solid rgba(16,185,129,0.35);
-}
-.flip-front img{width:100%;height:100%;object-fit:cover;object-position:top;}
-
-/* PLACEHOLDER */
-.placeholder{
-  width:100%;height:100%;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  background:linear-gradient(160deg,#ecfdf5,#f0f9ff);
-  gap:12px;
-}
-.placeholder .icon{font-size:52px;}
-.placeholder .label{font-size:11px;color:#10b981;letter-spacing:2px;text-transform:uppercase;font-weight:600;}
-
-.flip-back{
-  background:linear-gradient(145deg,#ecfdf5,#ede9fe);
-  border:1.5px solid rgba(99,102,241,0.25);
-  display:flex;align-items:center;justify-content:center;
-  text-align:center;padding:20px;
-  transform:rotateY(180deg);
-  font-size:clamp(11px,1.4vw,13px);line-height:1.7;
-  color:#374151;
 }
 
-/* INFO CARD */
-.flip-card-card{
-  width:clamp(240px,28vw,310px);
-  height:clamp(290px,34vw,370px);
-  perspective:1000px;flex-shrink:0;
-  animation:float2 5s ease-in-out infinite;
-  filter:drop-shadow(0 0 18px rgba(99,102,241,0.4)) drop-shadow(0 0 45px rgba(16,185,129,0.2));
+.premium-frame::before{
+  content:'';
+  position:absolute;
+  inset:-2px;
+  background:linear-gradient(45deg,#c9a961,transparent,#c9a961);
+  opacity:0;
+  animation:shimmer 4s ease-in-out infinite;
+  pointer-events:none;
 }
-.flip-card-card:hover{
-  filter:drop-shadow(0 0 28px rgba(20,184,166,0.8)) drop-shadow(0 0 65px rgba(20,184,166,0.35));
+@keyframes shimmer{0%,100%{opacity:0;}50%{opacity:0.1;}}
+
+.premium-frame::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(135deg,rgba(201,169,97,0.1),transparent),
+    linear-gradient(45deg,transparent,rgba(201,169,97,0.05));
+  pointer-events:none;
 }
 
-.flip-inner-card{width:100%;height:100%;transition:transform 0.8s;transform-style:preserve-3d;position:relative;}
-.flip-card-card:hover .flip-inner-card{transform:rotateY(180deg);}
-.flip-front-card,.flip-back-card{position:absolute;width:100%;height:100%;border-radius:26px;backface-visibility:hidden;}
-.flip-front-card{
-  background:rgba(255,255,255,0.75);
-  backdrop-filter:blur(24px);
-  border:1.5px solid rgba(16,185,129,0.2);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;padding:28px;
-  box-shadow:0 8px 32px rgba(16,185,129,0.08);
+.premium-frame img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  filter:grayscale(0.3) contrast(1.05);
+  transition:0.6s;
 }
-.flip-back-card{
-  background:linear-gradient(145deg,#ecfdf5,#ede9fe);
-  border:1.5px solid rgba(99,102,241,0.2);
-  transform:rotateY(180deg);
-  display:flex;align-items:center;justify-content:center;
-  text-align:justify;
-  font-size:clamp(11px,1.3vw,13px);line-height:1.8;padding:24px;
-  color:#374151;
+.premium-card:hover .premium-frame img{
+  filter:grayscale(0) contrast(1.2);
+  transform:scale(1.03);
+}
+
+.frame-label{
+  position:absolute;
+  bottom:20px;
+  left:20px;
+  color:#c9a961;
+  font-size:11px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  font-weight:300;
+  opacity:0;
+  transition:0.4s;
+}
+.premium-card:hover .frame-label{opacity:1;}
+
+/* INFO CARD - REFINED */
+.refined-card{
+  width:clamp(260px,28vw,380px);
+  height:clamp(320px,38vw,450px);
+  border:1px solid #3a3a3a;
+  background:
+    linear-gradient(135deg,rgba(201,169,97,0.05),rgba(201,169,97,0.02)),
+    linear-gradient(45deg,rgba(13,13,13,0.8),rgba(30,30,30,0.8));
+  backdrop-filter:blur(40px);
+  padding:50px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:24px;
+  position:relative;
+  overflow:hidden;
+  animation:float 6s ease-in-out infinite;
+}
+
+.refined-card::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse at 20% 30%, rgba(201,169,97,0.08) 0%, transparent 50%);
+  pointer-events:none;
+}
+
+.title-bar{
+  width:40px;
+  height:2px;
+  background:linear-gradient(90deg,#c9a961,transparent);
+  margin-bottom:10px;
 }
 
 .role{
-  background:linear-gradient(90deg,#059669,#6366f1);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  font-size:clamp(14px,1.7vw,18px);font-weight:700;line-height:1.5;
+  color:#c9a961;
+  font-size:clamp(16px,1.8vw,22px);
+  font-weight:300;
+  font-family:'Cormorant Garamond',serif;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  position:relative;
+  z-index:2;
 }
+
 .quote{
-  font-size:clamp(11px,1.3vw,13px);margin-top:12px;line-height:1.7;
-  color:#4b5563;font-style:italic;
+  font-size:clamp(12px,1.3vw,14px);
+  color:#b8b8b8;
+  font-style:italic;
+  letter-spacing:0.5px;
+  line-height:1.7;
+  position:relative;
+  z-index:2;
+  font-weight:300;
 }
+
 .batch{
-  margin-top:10px;font-size:clamp(10px,1.2vw,12px);
-  color:#10b981;opacity:0.6;font-weight:500;letter-spacing:1px;
+  margin-top:15px;
+  color:#8a8a8a;
+  font-size:10px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  font-weight:300;
+  position:relative;
+  z-index:2;
 }
+
 .hint{
-  margin-top:14px;font-size:clamp(10px,1.1vw,11px);
-  color:#6366f1;opacity:0.7;letter-spacing:2px;
-  animation:pulse 2.2s ease-in-out infinite;
+  margin-top:15px;
+  font-size:10px;
+  color:#c9a961;
+  letter-spacing:2px;
+  opacity:0.6;
+  font-style:italic;
+  animation:blink 2.5s ease-in-out infinite;
 }
-@keyframes pulse{0%,100%{opacity:0.3;}50%{opacity:1;}}
+@keyframes blink{0%,100%{opacity:0.4;}50%{opacity:0.9;}}
 
 /* BUTTON */
-.btn-col{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
-.msg-btn{
-  padding:13px 28px;border-radius:50px;
-  border:1.5px solid #10b981;
-  background:white;
-  color:#059669;font-weight:700;cursor:pointer;
-  font-family:'DM Sans',sans-serif;
-  font-size:clamp(12px,1.4vw,15px);
-  transition:0.3s;white-space:nowrap;
-  letter-spacing:0.5px;
-  box-shadow:0 4px 20px rgba(16,185,129,0.2);
+.elegant-btn{
+  padding:14px 35px;
+  border:1px solid #c9a961;
+  background:transparent;
+  color:#c9a961;
+  font-weight:300;
+  cursor:pointer;
+  letter-spacing:3px;
+  font-family:'Montserrat',sans-serif;
+  font-size:11px;
+  text-transform:uppercase;
+  transition:0.5s;
+  position:relative;
+  overflow:hidden;
+  margin-top:15px;
 }
-.msg-btn:hover{
-  background:linear-gradient(135deg,#10b981,#6366f1);
-  color:white;
-  border-color:transparent;
-  transform:scale(1.06) translateY(-2px);
-  box-shadow:0 8px 30px rgba(16,185,129,0.4);
+.elegant-btn::before{
+  content:'';
+  position:absolute;
+  top:0;left:-100%;
+  width:100%;height:100%;
+  background:#c9a961;
+  transition:0.6s cubic-bezier(0.68,-0.55,0.265,1.55);
+  z-index:-1;
+}
+.elegant-btn:hover::before{left:0;}
+.elegant-btn:hover{
+  color:#0d0d0d;
 }
 
 /* POPUP */
 .popup{
-  position:fixed;top:0;left:0;width:100%;height:100%;
-  background:rgba(240,253,248,0.88);
-  display:none;justify-content:center;align-items:center;
-  z-index:1000;padding:16px;
-  backdrop-filter:blur(10px);
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(13,13,13,0.98);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:1000;
+  backdrop-filter:blur(8px);
+  animation:fadeIn 0.4s;
 }
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
 .popup-content{
-  background:rgba(255,255,255,0.92);
-  border:1.5px solid rgba(16,185,129,0.25);
-  backdrop-filter:blur(30px);
-  padding:32px;border-radius:28px;
-  width:100%;max-width:520px;
-  animation:fadeIn 0.5s ease;position:relative;
-  max-height:90vh;overflow-y:auto;
-  box-shadow:0 20px 60px rgba(16,185,129,0.15), 0 4px 20px rgba(99,102,241,0.1);
+  background:linear-gradient(135deg,rgba(13,13,13,0.95),rgba(30,30,30,0.9));
+  border:1px solid #3a3a3a;
+  padding:60px;
+  border-radius:2px;
+  width:100%;
+  max-width:680px;
+  max-height:85vh;
+  overflow-y:auto;
+  position:relative;
+  box-shadow:0 20px 60px rgba(201,169,97,0.15);
 }
+
+.popup-content::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse at 20% 30%, rgba(201,169,97,0.06) 0%, transparent 50%);
+  pointer-events:none;
+  border-radius:2px;
+}
+
 .popup-title{
-  background:linear-gradient(90deg,#059669,#6366f1);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  margin-bottom:18px;font-size:clamp(16px,2.5vw,22px);font-weight:700;
-  font-family:'Playfair Display',serif;
+  color:#c9a961;
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(20px,3vw,28px);
+  margin-bottom:40px;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  font-weight:400;
+  position:relative;
+  z-index:2;
 }
-.close{
-  position:absolute;top:16px;right:20px;font-size:22px;
-  cursor:pointer;color:#10b981;transition:0.2s;font-weight:300;
+
+.popup-divider{
+  width:40px;
+  height:1px;
+  background:#c9a961;
+  margin-bottom:25px;
 }
-.close:hover{color:#6366f1;transform:scale(1.2);}
+
 .popup-content p{
-  font-size:clamp(12px,1.5vw,14px);line-height:2;
-  text-align:justify;color:#374151;
+  color:#c8c8c8;
+  line-height:2;
+  margin-bottom:20px;
+  font-size:clamp(12px,1.3vw,14px);
+  letter-spacing:0.5px;
+  font-weight:300;
+  position:relative;
+  z-index:2;
+  text-align:justify;
 }
 
-/* DECORATIVE TOP BAR IN POPUP */
-.popup-bar{
-  display:flex;gap:6px;margin-bottom:18px;
+.close{
+  position:absolute;
+  top:25px;
+  right:30px;
+  font-size:28px;
+  color:#c9a961;
+  cursor:pointer;
+  font-weight:100;
+  transition:0.3s;
+  opacity:0.7;
 }
-.popup-bar span{
-  height:4px;border-radius:4px;
-  flex:1;
+.close:hover{
+  opacity:1;
+  transform:scale(1.3);
 }
-.bar1{background:linear-gradient(90deg,#10b981,#34d399);}
-.bar2{background:linear-gradient(90deg,#6366f1,#a5b4fc);}
-.bar3{background:linear-gradient(90deg,#14b8a6,#5eead4);}
 
-@keyframes fadeDown{from{opacity:0;transform:translateY(-30px);}to{opacity:1;transform:translateY(0);}}
-@keyframes fadeIn{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:#1a1a1a;}
+::-webkit-scrollbar-thumb{background:#c9a961;border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:#e0c08f;}
 
-/* RESPONSIVE */
 @media(max-width:900px){
-  .main-row{gap:16px;padding:16px 16px 40px;min-height:auto;}
-  .flip-card{width:165px;height:290px;}
-  .flip-card-card{width:260px;height:290px;}
+  .main-row{flex-direction:column;gap:40px;}
 }
-@media(max-width:700px){
-  .main-row{flex-direction:column;gap:18px;padding:16px 12px 40px;min-height:auto;}
-  .flip-card{width:230px;height:310px;}
-  .flip-card-card{width:290px;height:270px;}
-}
+
 @media(max-width:480px){
-  .header{font-size:clamp(22px,8vw,34px);letter-spacing:2px;padding:20px 12px 4px;}
-  .tagline{font-size:9px;letter-spacing:2px;}
-  .flip-card{width:82vw;max-width:270px;height:330px;}
-  .flip-card-card{width:82vw;max-width:310px;height:260px;}
-  .msg-btn{width:82vw;max-width:280px;text-align:center;}
-  .main-row{gap:14px;padding:10px 10px 40px;}
-}
-@media(max-width:360px){
-  .flip-card{height:270px;}
-  .flip-card-card{height:240px;}
+  .header{font-size:clamp(36px,7vw,48px);padding:40px 20px 15px;}
+  .popup-content{padding:40px;}
+  .refined-card{padding:35px;}
 }
 </style>
 </head>
 <body>
 
+<div id="bg-elements">
+  <div class="bg-circle circle-1"></div>
+  <div class="bg-circle circle-2"></div>
+  <div class="bg-circle circle-3"></div>
+</div>
+<div id="grain"></div>
+
 <div id="loader">
-  <div class="loader-ring"></div>
+  <div class="elegant-loader"></div>
   <span id="typing"></span>
 </div>
 
 <div id="main">
-  <canvas id="canvas"></canvas>
   <div class="header" id="name"></div>
-  <div class="tagline">Design · Develop · Deliver · Inspire</div>
+  <div class="divider"></div>
+  <div class="tagline">Crafting Elegant Solutions — Code as Art</div>
 
   <div class="main-row">
-
-    <!-- IMAGE CARD -->
-    <div class="flip-card">
-      <div class="flip-inner">
-        <div class="flip-front">
-          <img src="images/Santhiya.png" alt="Santhiya">
-          <div class="placeholder">
-            <span class="icon">🌿</span>
-            <span class="label">Santhiya</span>
-          </div>
-        </div>
-        <div class="flip-back">
-          <p>She doesn't just write code — she crafts experiences. Elegant, thoughtful, and built to last. 🌿</p>
-        </div>
+    <!-- PREMIUM IMAGE CARD -->
+    <div class="premium-card">
+      <div class="premium-frame">
+        <img src="images/Santhiya.png" alt="Santhiya">
+        <span class="frame-label">Developer</span>
       </div>
     </div>
 
-    <!-- INFO CARD -->
-    <div class="flip-card-card">
-      <div class="flip-inner-card">
-        <div class="flip-front-card">
-          <p class="role">Software Developer</p>
-          <p class="quote">"Turning ideas into elegant solutions — one line of code at a time."</p>
-          <p class="batch">MSc Computer Science (2024–2026)</p>
-          <p class="hint">✦ Hover to explore ✦</p>
-        </div>
-        <div class="flip-back-card">
-          <p>Great software isn't just functional — it's thoughtful. Every project you touch reflects your care, creativity, and commitment to doing things right. Keep building beautifully. ✨</p>
-        </div>
-      </div>
+    <!-- REFINED INFO CARD -->
+    <div class="refined-card">
+      <div class="title-bar"></div>
+      <p class="role">Software Developer</p>
+      <p class="quote">"Code is poetry written in logic. Every line, a brushstroke. Every function, a masterpiece."</p>
+      <p class="batch">MSc Computer Science (2024–2026)</p>
+      <p class="hint">✦ Explore the vision ✦</p>
+      <button class="elegant-btn" onclick="showMsg(event)">Read Message</button>
     </div>
-
-    <!-- BUTTON -->
-    <div class="btn-col">
-      <button class="msg-btn" onclick="showMsg(event)">View Message 💚</button>
-    </div>
-
   </div>
 </div>
 
@@ -372,38 +457,50 @@ canvas{
 <div id="popup" class="popup">
   <div class="popup-content">
     <span class="close" onclick="closePopup()">&times;</span>
-    <div class="popup-bar">
-      <span class="bar1"></span>
-      <span class="bar2"></span>
-      <span class="bar3"></span>
-    </div>
-    <p class="popup-title">✨ Your Journey Starts Now ✨</p>
+    <p class="popup-title">Your Legacy Begins</p>
+    <div class="popup-divider"></div>
+    
     <p>
-      You chose a field that demands both logic and creativity — and you've shown you can handle both beautifully.
+      There are those who write code, and then there are those who craft experiences. You belong to the latter.
+    </p>
 
-      Every project you've worked on, every bug you've solved, every late night spent debugging — none of it was wasted. It was all quietly building the developer you are becoming today.
+    <p>
+      Every debugged line, every refactored function, every elegant solution you've uncovered—these are not mere technical achievements. They are brushstrokes on a canvas that will shape the digital world for years to come.
+    </p>
 
-      The world of software needs people who don't just write code that works, but code that matters. Code that is clean, thoughtful, and built with intention. That's exactly the kind of developer you are growing into.
+    <p>
+      The path of a developer is one of perpetual learning, and you've understood this from the start. You don't just accept solutions; you question them. You don't just write code; you write code that matters.
+    </p>
 
-      There will be moments when imposter syndrome creeps in — when you wonder if you're good enough, fast enough, smart enough. In those moments, remember: you are not behind. You are exactly where your journey needs you to be.
+    <p>
+      There will be moments of doubt, of course. Imposter syndrome is the whisper in every creator's ear. But remember: the greatest developers in history also started exactly where you are now. They too felt the weight of expectations. They too wondered if they were good enough.
+    </p>
 
-      Keep learning. Keep building. Keep showing up even when it feels hard. Because the most beautiful applications were not built in a day — and neither are the most remarkable developers.
+    <p>
+      What separated them from the rest was this: they kept showing up. They kept building. They kept believing in the power of clean code and elegant solutions.
+    </p>
 
-      You have everything it takes — the curiosity, the discipline, and the heart.
+    <p>
+      You have the mind for complexity and the heart for simplicity—a rare combination. You understand that true elegance lies in constraints. That beauty emerges from clarity. That the best code is the code that solves problems so gracefully, users never realize it was there.
+    </p>
 
-      So keep going, Santhiya. Your best code is still ahead of you. 💚
+    <p>
+      So keep building, Santhiya. Keep questioning. Keep creating. The world needs developers who care this deeply about their craft.
+    </p>
+
+    <p style="margin-top:35px; color:#c9a961; text-align:center; letter-spacing:2px; font-style:italic; font-weight:300;">
+      Your journey is just beginning. 🌟
     </p>
   </div>
 </div>
 
 <script>
-/* LOADER */
-let text=["Setting up workspace...","Loading profile...","Welcome, Santhiya! 🌿"];
+let text=["Initializing workspace...","Loading portfolio...","Welcome, Santhiya."];
 let i=0,j=0;
 function typeLoader(){
   let el=document.getElementById("typing");
-  if(j<text[i].length){el.innerHTML+=text[i][j];j++;setTimeout(typeLoader,45);}
-  else{setTimeout(()=>{el.innerHTML="";j=0;i++;if(i<text.length)typeLoader();else startMain();},900);}
+  if(j<text[i].length){el.innerHTML+=text[i][j];j++;setTimeout(typeLoader,60);}
+  else{setTimeout(()=>{el.innerHTML="";j=0;i++;if(i<text.length)typeLoader();else startMain();},1000);}
 }
 typeLoader();
 
@@ -411,81 +508,12 @@ function startMain(){
   document.getElementById("loader").style.display="none";
   document.getElementById("main").style.display="block";
   typeName();
-  resizeCanvas();
 }
 
-/* NAME */
-let nameText="Santhiya",k=0;
+let nameText="SANTHIYA",k=0;
 function typeName(){
-  if(k<nameText.length){document.getElementById("name").innerHTML+=nameText[k];k++;setTimeout(typeName,90);}
+  if(k<nameText.length){document.getElementById("name").innerHTML+=nameText[k];k++;setTimeout(typeName,100);}
 }
-
-/* CANVAS */
-let canvas=document.getElementById("canvas");
-let ctx=canvas.getContext("2d");
-function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
-resizeCanvas();
-window.addEventListener("resize",resizeCanvas);
-
-/* FLOATING BUBBLES */
-let bubbles=[];
-for(let n=0;n<55;n++){
-  bubbles.push({
-    x:Math.random()*window.innerWidth,
-    y:Math.random()*window.innerHeight,
-    r:Math.random()*4+1,
-    speedX:(Math.random()-0.5)*0.4,
-    speedY:-(Math.random()*0.5+0.2),
-    alpha:Math.random()*0.5+0.1,
-    hue:Math.random()>0.5?'16,185,129':'99,102,241'
-  });
-}
-
-/* SOFT SPARKLES */
-let sparkles=[];
-function addSparkle(){
-  sparkles.push({
-    x:Math.random()*canvas.width,
-    y:Math.random()*canvas.height,
-    size:Math.random()*3+1,
-    alpha:1,
-    decay:Math.random()*0.02+0.01,
-    hue:Math.random()>0.5?'16,185,129':'20,184,166'
-  });
-}
-setInterval(addSparkle,300);
-
-function draw(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  /* bubbles */
-  bubbles.forEach(b=>{
-    b.x+=b.speedX;
-    b.y+=b.speedY;
-    if(b.y<-10){b.y=canvas.height+10;b.x=Math.random()*canvas.width;}
-    if(b.x<-10||b.x>canvas.width+10) b.speedX*=-1;
-    ctx.beginPath();
-    ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
-    ctx.fillStyle=`rgba(${b.hue},${b.alpha})`;
-    ctx.fill();
-  });
-
-  /* sparkles */
-  sparkles.forEach((s,idx)=>{
-    ctx.save();
-    ctx.globalAlpha=s.alpha;
-    ctx.beginPath();
-    ctx.arc(s.x,s.y,s.size,0,Math.PI*2);
-    ctx.fillStyle=`rgba(${s.hue},1)`;
-    ctx.fill();
-    ctx.restore();
-    s.alpha-=s.decay;
-    if(s.alpha<=0) sparkles.splice(idx,1);
-  });
-
-  requestAnimationFrame(draw);
-}
-draw();
 
 function showMsg(e){e.stopPropagation();document.getElementById("popup").style.display="flex";}
 function closePopup(){document.getElementById("popup").style.display="none";}
