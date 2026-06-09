@@ -1,0 +1,27 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor folders
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+
+# System files
+*.cache
+
+# Node (if you ever upgrade project later)
+node_modules/
+npm-debug.log*
+
+# Build files (future-proof)
+dist/
+build/
+
+# Ignore local config
+.env

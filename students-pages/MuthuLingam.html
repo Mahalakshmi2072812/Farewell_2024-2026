@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,300;0,400;0,700;0,900;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;min-height:100vh;background:#080500;color:#fff5e0;font-family:'Barlow Condensed',sans-serif;overflow-x:hidden;}
+
+/* ── LOADER ── */
+#loader{position:fixed;inset:0;background:#080500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:999;}
+.power-ring{width:70px;height:70px;position:relative;}
+.pr-outer{position:absolute;inset:0;border-radius:50%;border:3px solid rgba(234,179,8,0.15);border-top:3px solid #eab308;animation:prSpin 0.8s linear infinite;}
+.pr-inner{position:absolute;inset:8px;border-radius:50%;border:2px solid rgba(234,179,8,0.1);border-bottom:2px solid #ca8a04;animation:prSpin 1.2s linear infinite reverse;}
+.pr-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:#eab308;letter-spacing:2px;}
+@keyframes prSpin{to{transform:rotate(360deg);}}
+.loader-power{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:8px;color:#6a4700;}
+#loader-txt{font-family:'Share Tech Mono',monospace;font-size:11px;color:#5a3d00;letter-spacing:4px;}
+
+canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+
+#main{display:none;min-height:100vh;position:relative;z-index:1;
+  background:radial-gradient(ellipse at 20% 30%,rgba(234,179,8,0.14) 0%,transparent 50%),
+             radial-gradient(ellipse at 80% 70%,rgba(202,138,4,0.1) 0%,transparent 50%),
+             radial-gradient(ellipse at 50% 100%,rgba(180,60,0,0.08) 0%,transparent 40%),
+             #080500;}
+
+/* IRON PLATE TEXTURE TOP */
+.iron-bar{width:100%;height:48px;background:#0d0900;border-bottom:3px solid #1a1000;position:relative;z-index:2;overflow:hidden;display:flex;align-items:center;justify-content:space-between;padding:0 16px;}
+.ib-plates{display:flex;gap:4px;align-items:center;}
+.plate{height:32px;background:#1a1000;border:1px solid #2a2000;border-radius:2px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:1px;color:#4a3000;}
+.plate.gold{border-color:rgba(234,179,8,0.4);color:rgba(234,179,8,0.6);}
+.ib-ticker{font-family:'Share Tech Mono',monospace;font-size:10px;color:#3a2500;letter-spacing:2px;white-space:nowrap;overflow:hidden;}
+.ib-ticker-inner{display:inline-block;animation:ibScroll 18s linear infinite;}
+@keyframes ibScroll{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
+
+/* WEIGHT COUNT STRIP */
+.weight-strip{
+  background:#0a0700;border-bottom:2px solid rgba(234,179,8,0.2);
+  padding:10px 24px;text-align:center;position:relative;z-index:2;
+}
+.ws-inner{display:inline-flex;align-items:center;gap:24px;flex-wrap:wrap;justify-content:center;}
+.ws-block{text-align:center;}
+.ws-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(22px,4vw,40px);color:#eab308;line-height:1;letter-spacing:2px;}
+.ws-num.fire{color:#ff6600;}
+.ws-lbl{font-family:'Share Tech Mono',monospace;font-size:10px;color:#4a3000;letter-spacing:3px;text-transform:uppercase;}
+.ws-div{width:1px;height:40px;background:#1a1000;}
+.live-dot{display:inline-block;width:6px;height:6px;background:#eab308;border-radius:50%;animation:ldPulse 1s ease-in-out infinite;margin-right:8px;vertical-align:middle;}
+@keyframes ldPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.3;transform:scale(0.6);}}
+
+/* HEADER */
+.header-zone{text-align:center;padding:20px 20px 6px;position:relative;z-index:2;}
+.hz-pre{font-family:'Share Tech Mono',monospace;font-size:11px;color:#4a3000;letter-spacing:6px;text-transform:uppercase;margin-bottom:8px;}
+.main-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,7.5vw,88px);letter-spacing:4px;text-transform:uppercase;line-height:0.95;color:#fff5e0;position:relative;display:inline-block;}
+.main-name .yell{color:#eab308;}
+.main-name::after{content:'';position:absolute;bottom:-4px;left:0;width:100%;height:3px;background:linear-gradient(90deg,transparent,#eab308,#ca8a04,transparent);}
+.tagline-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px;flex-wrap:wrap;}
+.tg-item{font-family:'Bebas Neue',sans-serif;font-size:clamp(13px,2vw,18px);letter-spacing:4px;color:#6a4700;text-transform:uppercase;}
+.tg-sep{color:#2a1800;font-size:22px;}
+
+/* MAIN ROW */
+.main-row{display:flex;flex-direction:row;align-items:center;justify-content:center;flex-wrap:wrap;gap:22px;padding:16px 24px 48px;position:relative;z-index:2;}
+
+/* PHOTO CARD 1 */
+.photo-card{
+  width:clamp(160px,16vw,205px);height:clamp(300px,32vw,390px);
+  flex-shrink:0;position:relative;animation:floatA 5s ease-in-out infinite;
+}
+@keyframes floatA{0%,100%{transform:translateY(0);}50%{transform:translateY(-13px);}}
+.photo-frame{width:100%;height:100%;background:#0d0900;border:1px solid rgba(234,179,8,0.35);border-radius:3px;overflow:hidden;position:relative;}
+.photo-frame img{width:100%;height:100%;object-fit:cover;object-position:top;filter:contrast(1.1) brightness(0.9) saturate(0.85);}
+.photo-frame::after{content:'';position:absolute;inset:0;background:linear-gradient(transparent 50%,rgba(8,5,0,0.95) 100%);}
+.photo-tag{position:absolute;bottom:10px;left:0;width:100%;z-index:3;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:14px;color:#eab308;letter-spacing:4px;}
+.photo-badge-top{position:absolute;top:10px;left:0;right:0;z-index:3;text-align:center;}
+.pbt-inner{display:inline-block;background:rgba(234,179,8,0.15);border:1px solid rgba(234,179,8,0.4);padding:3px 12px;border-radius:1px;font-family:'Share Tech Mono',monospace;font-size:10px;color:#eab308;letter-spacing:2px;}
+.energy-line{position:absolute;left:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(234,179,8,0.7),transparent);animation:eLine 3.5s ease-in-out infinite;top:50%;}
+@keyframes eLine{0%,100%{opacity:0;top:20%;}50%{opacity:1;top:80%;}}
+/* notch corners */
+.nc{position:absolute;width:16px;height:16px;z-index:4;}
+.nc::before,.nc::after{content:'';position:absolute;background:#eab308;opacity:0.5;}
+.nc.tl{top:0;left:0;} .nc.tl::before{top:0;left:0;width:16px;height:2px;} .nc.tl::after{top:0;left:0;width:2px;height:16px;}
+.nc.tr{top:0;right:0;} .nc.tr::before{top:0;right:0;width:16px;height:2px;} .nc.tr::after{top:0;right:0;width:2px;height:16px;}
+.nc.bl{bottom:0;left:0;} .nc.bl::before{bottom:0;left:0;width:16px;height:2px;} .nc.bl::after{bottom:0;left:0;width:2px;height:16px;}
+.nc.br{bottom:0;right:0;} .nc.br::before{bottom:0;right:0;width:16px;height:2px;} .nc.br::after{bottom:0;right:0;width:2px;height:16px;}
+
+/* PHOTO CARD 2 */
+.photo-card2{
+  width:clamp(160px,16vw,205px);height:clamp(300px,32vw,390px);
+  flex-shrink:0;position:relative;animation:floatB 6s ease-in-out infinite;
+}
+@keyframes floatB{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);}}
+
+/* GYM LOCKER FLIP CARD */
+.locker-card{
+  width:clamp(250px,25vw,300px);height:clamp(300px,32vw,390px);
+  flex-shrink:0;perspective:1200px;animation:floatC 5.5s ease-in-out infinite;
+}
+@keyframes floatC{0%,100%{transform:translateY(0);}50%{transform:translateY(-11px);}}
+.locker-card:hover{animation-play-state:paused;transform:translateY(0)!important;}
+.locker-inner{width:100%;height:100%;transform-style:preserve-3d;transition:transform 0.9s cubic-bezier(0.4,0,0.2,1);}
+.locker-card:hover .locker-inner{transform:rotateY(180deg);}
+.locker-front,.locker-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:3px;}
+
+.locker-front{background:#0d0900;border:1px solid rgba(234,179,8,0.3);overflow:hidden;display:flex;flex-direction:column;}
+/* locker top plate with punched texture */
+.lf-plate{
+  background:#130e00;border-bottom:3px solid #eab308;
+  padding:14px 16px;position:relative;overflow:hidden;
+}
+.lf-plate::before{content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg,transparent,transparent 5px,rgba(234,179,8,0.04) 5px,rgba(234,179,8,0.04) 6px);}
+.lf-plate-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(16px,2.2vw,22px);letter-spacing:4px;color:#fff5e0;text-transform:uppercase;position:relative;z-index:1;}
+.lf-plate-role{font-family:'Share Tech Mono',monospace;font-size:10px;color:#ca8a04;letter-spacing:3px;margin-top:3px;position:relative;z-index:1;}
+.lf-num{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-family:'Bebas Neue',sans-serif;font-size:32px;color:rgba(234,179,8,0.15);z-index:1;letter-spacing:2px;}
+.lf-body{flex:1;padding:14px 16px 10px;display:flex;flex-direction:column;gap:9px;}
+.lf-row{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(234,179,8,0.07);padding-bottom:8px;}
+.lf-row:last-of-type{border-bottom:none;}
+.lf-key{font-family:'Share Tech Mono',monospace;font-size:10px;color:#3a2800;letter-spacing:2px;text-transform:uppercase;}
+.lf-val{font-family:'Barlow Condensed',sans-serif;font-size:14px;color:#ca8a04;font-weight:700;}
+.lf-val.big{font-family:'Bebas Neue',sans-serif;font-size:18px;color:#eab308;letter-spacing:2px;}
+.lf-val.fire{color:#ff6600;}
+.lf-hint{margin-top:auto;font-family:'Share Tech Mono',monospace;font-size:10px;color:#2a1800;letter-spacing:2px;text-align:center;animation:blinkH 2s step-end infinite;}
+@keyframes blinkH{0%,100%{opacity:0.3;}50%{opacity:1;}}
+
+.locker-back{background:#080500;border:1px solid rgba(234,179,8,0.3);transform:rotateY(180deg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:13px;text-align:center;}
+.lb-barbell{margin-bottom:4px;}
+.lb-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:5px;color:#eab308;text-transform:uppercase;}
+.lb-tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
+.lbtag{font-family:'Share Tech Mono',monospace;font-size:10px;color:#6a4700;border:1px solid rgba(234,179,8,0.2);padding:3px 9px;border-radius:1px;background:#0d0900;letter-spacing:1px;}
+.lb-quote{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-size:14px;color:#4a3200;line-height:1.9;font-weight:400;}
+
+/* STAT PLATES */
+.stat-col{display:flex;flex-direction:column;gap:10px;flex-shrink:0;animation:floatD 4.5s ease-in-out infinite;}
+@keyframes floatD{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.stat-plate{
+  width:clamp(135px,13vw,165px);
+  background:#0d0900;
+  border:1px solid rgba(234,179,8,0.15);
+  border-bottom:3px solid #ca8a04;
+  padding:12px 14px;border-radius:2px;
+  transition:background 0.3s,border-color 0.3s;position:relative;overflow:hidden;
+}
+.stat-plate::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(234,179,8,0.3),transparent);}
+.stat-plate:hover{background:#110c00;border-color:#eab308;}
+.sp-icon{margin-bottom:5px;display:flex;}
+.sp-val{font-family:'Bebas Neue',sans-serif;font-size:18px;color:#eab308;letter-spacing:2px;}
+.sp-lbl{font-family:'Share Tech Mono',monospace;font-size:10px;color:#3a2800;letter-spacing:2px;text-transform:uppercase;}
+.sp-bar{height:2px;background:#1a1000;margin-top:6px;border-radius:1px;overflow:hidden;}
+.sp-fill{height:100%;background:linear-gradient(90deg,#ca8a04,#eab308);border-radius:1px;}
+
+/* BUTTON */
+.btn-zone{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;gap:10px;}
+.power-btn{
+  font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:5px;text-transform:uppercase;
+  padding:16px 30px;background:#130e00;color:#eab308;
+  border:2px solid rgba(234,179,8,0.4);cursor:pointer;border-radius:2px;
+  position:relative;overflow:hidden;
+  transition:color 0.3s,background 0.3s,border-color 0.3s;
+}
+.power-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,#eab308,#ca8a04);
+  opacity:0;transition:opacity 0.3s;
+}
+.power-btn:hover::before{opacity:1;}
+.power-btn:hover{color:#080500;border-color:#eab308;}
+.power-btn span{position:relative;z-index:1;}
+
+/* REP COUNTER */
+.rep-ticker{
+  font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:4px;
+  color:rgba(234,179,8,0.5);text-align:center;
+  animation:repFlash 0.8s step-end infinite;
+}
+@keyframes repFlash{0%,49%{opacity:1;}50%,100%{opacity:0.3;}}
+
+/* POPUP */
+.popup-wrap{display:none;position:fixed;inset:0;background:rgba(8,5,0,0.96);backdrop-filter:blur(14px);z-index:1000;padding:20px;align-items:center;justify-content:center;}
+.popup-wrap.open{display:flex;}
+.popup-box{background:#0a0700;border:1px solid rgba(234,179,8,0.3);border-radius:3px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;animation:popIn 0.35s ease;position:relative;}
+@keyframes popIn{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
+.popup-plate{background:#130e00;border-bottom:3px solid #eab308;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
+.popup-ttxt{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:5px;color:#eab308;text-transform:uppercase;}
+.popup-cls{background:none;border:none;font-family:'Bebas Neue',sans-serif;font-size:14px;color:#4a3000;cursor:pointer;padding:4px 8px;letter-spacing:2px;}
+.popup-cls:hover{color:#eab308;}
+.popup-body{padding:28px;}
+.popup-over{font-family:'Share Tech Mono',monospace;font-size:10px;color:#3a2800;letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;}
+.popup-heading{font-family:'Bebas Neue',sans-serif;font-size:clamp(22px,4vw,34px);letter-spacing:4px;color:#fff5e0;margin-bottom:14px;}
+.popup-rule{height:3px;background:#1a1000;margin-bottom:20px;position:relative;overflow:hidden;}
+.popup-rule::after{content:'';position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,#eab308,#ca8a04,transparent);animation:ruleSlide 3s ease-in-out infinite alternate;}
+@keyframes ruleSlide{0%{width:20%;}100%{width:85%;}}\
+.popup-text p{font-family:'Barlow Condensed',sans-serif;font-size:15px;line-height:1.9;color:#6a4700;margin-bottom:11px;font-weight:400;}
+.popup-text p strong{color:#ca8a04;}
+.popup-text .shout{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;color:#eab308;display:block;margin:14px 0 8px;}
+.popup-sig{margin-top:20px;font-family:'Share Tech Mono',monospace;font-size:10px;color:#2a1800;letter-spacing:3px;text-align:right;}
+
+@media(max-width:950px){.main-row{gap:18px;padding:12px 16px 40px;}.stat-col{flex-direction:row;flex-wrap:wrap;justify-content:center;}.stat-plate{width:140px;}}
+@media(max-width:720px){.main-row{flex-direction:column;gap:16px;padding:10px 14px 40px;}.photo-card,.photo-card2{width:82vw;max-width:250px;height:340px;}.locker-card{width:82vw;max-width:300px;}.stat-col{flex-direction:row;flex-wrap:wrap;justify-content:center;}.stat-plate{width:140px;}.power-btn{width:82vw;max-width:280px;text-align:center;}.ws-inner{gap:14px;}.ws-div{display:none;}}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="power-ring">
+    <div class="pr-outer"></div>
+    <div class="pr-inner"></div>
+    <div class="pr-center">PR</div>
+  </div>
+  <div class="loader-power">BEAST MODE</div>
+  <span id="loader-txt"></span>
+</div>
+
+<div id="main">
+  <canvas id="canvas"></canvas>
+
+  <!-- IRON BAR TOP -->
+  <div class="iron-bar">
+    <div class="ib-plates">
+      <div class="plate gold" style="width:28px;">45</div>
+      <div class="plate gold" style="width:24px;">25</div>
+      <div class="plate" style="width:20px;">10</div>
+      <div class="plate" style="width:18px;">5</div>
+      <div class="plate gold" style="width:20px;">2.5</div>
+    </div>
+    <div class="ib-ticker">
+      <span class="ib-ticker-inner">MUTHULINGAM · FITNESS TRAINER · GD ASPIRANT · IRON WILL · NEVER QUIT · 5AM GANG · BEAST MODE ACTIVATED · BUILT DIFFERENT · </span>
+    </div>
+    <div class="ib-plates" style="flex-direction:row-reverse;">
+      <div class="plate gold" style="width:28px;">45</div>
+      <div class="plate gold" style="width:24px;">25</div>
+      <div class="plate" style="width:20px;">10</div>
+    </div>
+  </div>
+
+  <!-- LIVE STATS STRIP -->
+  <div class="weight-strip">
+    <div class="ws-inner">
+      <div class="ws-block">
+        <div class="ws-num" id="repCounter">000</div>
+        <div class="ws-lbl"><span class="live-dot"></span>Total Reps</div>
+      </div>
+      <div class="ws-div"></div>
+      <div class="ws-block">
+        <div class="ws-num fire">5AM</div>
+        <div class="ws-lbl">Wake Up</div>
+      </div>
+      <div class="ws-div"></div>
+      <div class="ws-block">
+        <div class="ws-num">100<span style="font-size:0.5em;color:#ca8a04;">%</span></div>
+        <div class="ws-lbl">Commitment</div>
+      </div>
+      <div class="ws-div"></div>
+      <div class="ws-block">
+        <div class="ws-num fire">NOT<br style="display:none"> OUT</div>
+        <div class="ws-lbl">GD Status</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="header-zone">
+    <div class="hz-pre">Fitness Trainer · GD Aspirant · MSc CS 2024–26</div>
+    <div class="main-name"><span class="yell">MUTHU</span>LINGAM</div>
+    <div class="tagline-row">
+      <span class="tg-item">Iron Will</span><span class="tg-sep">·</span>
+      <span class="tg-item">Fitness Trainer</span><span class="tg-sep">·</span>
+      <span class="tg-item">GD Bound</span>
+    </div>
+  </div>
+
+  <div class="main-row">
+
+    <!-- PHOTO 1 -->
+    <div class="photo-card">
+      <div class="nc tl"></div><div class="nc tr"></div><div class="nc bl"></div><div class="nc br"></div>
+      <div class="photo-frame">
+        <div class="photo-badge-top"><span class="pbt-inner">GD WARRIOR</span></div>
+        <img src="../images/Muthulingam.png" alt="Muthulingam" onerror="this.style.display='none'">
+        <div class="energy-line"></div>
+        <div class="photo-tag">MUTHU · IRON</div>
+        <div style="position:absolute;inset:0;background:linear-gradient(transparent 50%,rgba(8,5,0,0.95) 100%);z-index:2;pointer-events:none;"></div>
+      </div>
+    </div>
+
+    <!-- GYM LOCKER FLIP CARD -->
+    <div class="locker-card" id="lockerCard">
+      <div class="locker-inner" id="lockerInner">
+        <div class="locker-front">
+          <div class="lf-plate">
+            <div class="lf-plate-name">Muthulingam</div>
+            <div class="lf-plate-role">Fitness Trainer · GD Aspirant</div>
+            <div class="lf-num">01</div>
+          </div>
+          <div class="lf-body">
+            <div class="lf-row"><span class="lf-key">Profession</span><span class="lf-val fire big">Fitness Trainer</span></div>
+            <div class="lf-row"><span class="lf-key">Goal</span><span class="lf-val big">GD Exam</span></div>
+            <div class="lf-row"><span class="lf-key">Program</span><span class="lf-val">MSc CS 24–26</span></div>
+            <div class="lf-row"><span class="lf-key">Wake-up</span><span class="lf-val big">5:00 AM</span></div>
+            <div class="lf-row"><span class="lf-key">Mindset</span><span class="lf-val fire">Unbreakable</span></div>
+            <div class="lf-hint">HOVER TO FLIP ▸</div>
+          </div>
+        </div>
+        <div class="locker-back">
+          <div class="lb-barbell">
+            <svg width="80" height="22" viewBox="0 0 80 22" fill="none">
+              <rect x="0" y="6" width="12" height="10" rx="2" fill="rgba(234,179,8,0.6)"/>
+              <rect x="2" y="3" width="8" height="16" rx="1" fill="rgba(202,138,4,0.7)"/>
+              <rect x="12" y="9" width="56" height="4" rx="2" fill="rgba(234,179,8,0.4)"/>
+              <rect x="68" y="6" width="12" height="10" rx="2" fill="rgba(234,179,8,0.6)"/>
+              <rect x="70" y="3" width="8" height="16" rx="1" fill="rgba(202,138,4,0.7)"/>
+            </svg>
+          </div>
+          <div class="lb-title">The Beast Code</div>
+          <div class="lb-tags">
+            <span class="lbtag">Powerlifting</span><span class="lbtag">Conditioning</span>
+            <span class="lbtag">Nutrition</span><span class="lbtag">Discipline</span>
+            <span class="lbtag">Training Plans</span><span class="lbtag">GD Prep</span>
+          </div>
+          <div class="lb-quote">"He trains others to be strong while building himself to be unstoppable. The gym is his classroom — and the exam is just another set."</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHOTO 2 -->
+    <div class="photo-card2">
+      <div class="nc tl"></div><div class="nc tr"></div><div class="nc bl"></div><div class="nc br"></div>
+      <div class="photo-frame" style="border-radius:3px;width:100%;height:100%;background:#0d0900;border:1px solid rgba(234,179,8,0.35);overflow:hidden;position:relative;">
+        <div class="photo-badge-top"><span class="pbt-inner">FITNESS TRAINER</span></div>
+        <img src="../images/Muthulingam_Gymmen.png" alt="Muthulingam Gym" style="width:100%;height:100%;object-fit:cover;object-position:top;filter:contrast(1.1) brightness(0.9) saturate(0.85);" onerror="this.style.display='none'">
+        <div class="energy-line" style="animation-delay:1.5s;"></div>
+        <div class="photo-tag">MUTHU · BEAST</div>
+        <div style="position:absolute;inset:0;background:linear-gradient(transparent 50%,rgba(8,5,0,0.95) 100%);z-index:2;pointer-events:none;"></div>
+      </div>
+    </div>
+
+    <!-- STAT PLATES -->
+    <div class="stat-col">
+      <div class="stat-plate">
+        <div class="sp-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10L5 5l3 4 2-3 2 3" stroke="#eab308" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="sp-val">Trainer</div>
+        <div class="sp-lbl">Profession</div>
+        <div class="sp-bar"><div class="sp-fill" style="width:100%;"></div></div>
+      </div>
+      <div class="stat-plate">
+        <div class="sp-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5" stroke="#eab308" stroke-width="1.5"/><path d="M7 4v3l2 1.5" stroke="#eab308" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="sp-val">5AM</div>
+        <div class="sp-lbl">Every Day</div>
+        <div class="sp-bar"><div class="sp-fill" style="width:100%;"></div></div>
+      </div>
+      <div class="stat-plate">
+        <div class="sp-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2l1.5 3.5H12L9 7.5l1.2 3.5L7 9l-3.2 2L5 7.5 2 5.5h3.5z" stroke="#eab308" stroke-width="1.3" stroke-linejoin="round" fill="none"/></svg>
+        </div>
+        <div class="sp-val">GD Prep</div>
+        <div class="sp-lbl">In Progress</div>
+        <div class="sp-bar"><div class="sp-fill" style="width:82%;"></div></div>
+      </div>
+    </div>
+
+    <!-- BUTTON + REP COUNTER -->
+    <div class="btn-zone">
+      <div class="rep-ticker" id="repTicker">REPS: 000</div>
+      <button class="power-btn" onclick="openMsg()"><span>LOAD MESSAGE ▸</span></button>
+    </div>
+
+  </div>
+</div>
+
+<!-- POPUP -->
+<div class="popup-wrap" id="popup">
+  <div class="popup-box">
+    <div class="popup-plate">
+      <span class="popup-ttxt">The Iron Message</span>
+      <button class="popup-cls" onclick="closeMsg()">CLOSE ✕</button>
+    </div>
+    <div class="popup-body">
+      <div class="popup-over">Rep 1 · Set 1 · No Days Off</div>
+      <div class="popup-heading">BUILT DIFFERENT</div>
+      <div class="popup-rule"></div>
+      <div class="popup-text">
+        <p>Most people talk about discipline. <strong>You live it — every single morning at 5 AM, before the world wakes up, before excuses form.</strong></p>
+        <span class="shout">YOU TRAIN OTHERS TO BE STRONG.<br>WHO TRAINS THE TRAINER?</span>
+        <p>The answer is you, Muthu. You are your own coach, your own competition, and your own biggest source of power. <strong>The bar doesn't care about your feelings — and neither do you. That's the gift.</strong></p>
+        <p>Being a Fitness Trainer is not just a job. It's a message to every person who walks through that gym door: <strong>"If I can push past the limit, so can you."</strong> You are proof, every single day.</p>
+        <p>And the GD exam? <strong>That's just a different kind of set.</strong> You've already mastered the most important rep — showing up when it's hard. The exam room is just another platform. Step on it.</p>
+        <span class="shout">IRON BUILDS MUSCLE.<br>PRESSURE BUILDS CHAMPIONS.</span>
+        <p>You are not preparing for an exam. <strong>You are forging a version of yourself that no setback, no failure, no hard day can ever stop.</strong></p>
+        <p>Keep loading the bar, Muthu. <strong>The heaviest lifts are still ahead — and you were made for them.</strong></p>
+      </div>
+      <div class="popup-sig">// NO DAYS OFF · MUTHU💛✨ · BEAST MODE: PERMANENT</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const lines=["Loading iron plates...","Activating beast mode...","MUTHULINGAM — LET'S GO!"];
+let li=0,lj=0;
+function typeLoader(){
+  const el=document.getElementById("loader-txt");
+  if(lj<lines[li].length){el.textContent+=lines[li][lj];lj++;setTimeout(typeLoader,50);}
+  else{setTimeout(()=>{el.textContent="";lj=0;li++;if(li<lines.length)typeLoader();else boot();},950);}
+}
+typeLoader();
+
+function boot(){
+  document.getElementById("loader").style.display="none";
+  document.getElementById("main").style.display="block";
+  startReps();
+  initCanvas();drawLoop();
+  const card=document.getElementById("lockerCard"),inner=document.getElementById("lockerInner");
+  card.addEventListener("mouseenter",()=>{card.style.animationPlayState="paused";card.style.transform="translateY(0)";inner.style.transform="rotateY(180deg)";});
+  card.addEventListener("mouseleave",()=>{inner.style.transform="rotateY(0deg)";setTimeout(()=>{card.style.transform="";card.style.animationPlayState="running";},880);});
+}
+
+let reps=0;
+const repPatterns=[1,1,1,2,1,1,1,2,1,2,4,1,1,1,2,1,4,1,1,2];
+let ri=0;
+function startReps(){
+  setInterval(()=>{
+    reps+=repPatterns[ri%repPatterns.length];ri++;
+    const s=String(reps).padStart(3,'0');
+    const el=document.getElementById("repCounter");if(el)el.textContent=s;
+    const t=document.getElementById("repTicker");if(t)t.textContent="REPS: "+s;
+  },500);
+}
+
+const canvas=document.getElementById("canvas"),ctx=canvas.getContext("2d");
+let W,H,pts=[];
+function initCanvas(){
+  W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;pts=[];
+  for(let i=0;i<120;i++){
+    const t=Math.random();
+    pts.push({
+      x:Math.random()*W,y:Math.random()*H,
+      vx:(Math.random()-0.5)*0.5,vy:t<0.4?-(Math.random()*0.8+0.2):(Math.random()-0.5)*0.4,
+      a:Math.random()*0.5+0.1,da:Math.random()*0.004+0.001,
+      r:Math.random()*2+0.5,
+      type:t<0.35?'ember':t<0.6?'spark':'barbell',
+      w:Math.random()*30+8,
+      rot:Math.random()*Math.PI*2,rotV:(Math.random()-0.5)*0.03,
+      size:Math.random()*8+4
+    });
+  }
+}
+window.addEventListener("resize",initCanvas);
+
+function drawBB(x,y,sz,a,rot){
+  ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.globalAlpha=a;
+  ctx.fillStyle="rgba(234,179,8,0.7)";
+  ctx.fillRect(-sz*1.4,-sz*0.12,sz*2.8,sz*0.24);
+  ctx.fillStyle="rgba(202,138,4,0.8)";
+  ctx.fillRect(-sz*1.4,-sz*0.38,sz*0.28,sz*0.76);
+  ctx.fillRect(sz*1.12,-sz*0.38,sz*0.28,sz*0.76);
+  ctx.restore();
+}
+
+function drawLoop(){
+  ctx.clearRect(0,0,W,H);
+  pts.forEach(p=>{
+    p.a+=p.da;if(p.a>0.55||p.a<0.05)p.da*=-1;
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.type==='ember'||p.type==='barbell'){if(p.y<-40){p.y=H+40;p.x=Math.random()*W;}}
+    else{if(p.y<0)p.y=H;if(p.y>H)p.y=0;}
+    if(p.x<0)p.x=W;if(p.x>W)p.x=0;
+    if(p.type==='ember'){
+      ctx.save();ctx.globalAlpha=p.a;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`hsl(${40+Math.random()*20},90%,60%)`;ctx.fill();ctx.restore();
+    } else if(p.type==='spark'){
+      ctx.save();ctx.globalAlpha=p.a*0.6;
+      ctx.fillStyle="rgba(202,138,4,0.5)";ctx.fillRect(p.x,p.y,p.w,1);ctx.restore();
+    } else {
+      p.rot+=p.rotV;
+      drawBB(p.x,p.y,p.size,p.a*0.4,p.rot);
+    }
+  });
+  requestAnimationFrame(drawLoop);
+}
+
+function openMsg(){document.getElementById("popup").classList.add("open");}
+function closeMsg(){document.getElementById("popup").classList.remove("open");}
+document.getElementById("popup").addEventListener("click",e=>{if(e.target===document.getElementById("popup"))closeMsg();});
+</script>
+</body>
+</html>
